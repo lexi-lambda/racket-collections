@@ -142,7 +142,7 @@
 (define (parse-apply-arguments args)
   (define fn (first args))
   (when (not (procedure? fn))
-      (b:apply raise-argument-error 'apply "procedure?" 0 args))
+    (b:apply raise-argument-error 'apply "procedure?" 0 args))
   (define main-args (rest args))
   (define-values (init last) (b:split-at main-args (sub1 (length main-args))))
   (when (not (sequence? (b:first last)))
@@ -155,7 +155,7 @@
   (when (b:empty? args)
     (b:apply raise-arity-error 'apply (arity-at-least 1) args))
   (if (= (b:length args) 1)
-      (b:first args)
+      ((b:first args))
       (let-values ([(fn args) (parse-apply-arguments args)])
         (b:apply b:apply fn args))))
 
@@ -163,10 +163,8 @@
 (define (apply/kws kws kw-vals . args)
   (when (b:empty? args)
     (b:apply raise-arity-error 'apply (arity-at-least 1) args))
-  (if (= (b:length args) 1)
-      (b:first args)
-      (let-values ([(fn args) (parse-apply-arguments args)])
-        (b:apply b:keyword-apply fn kws kw-vals args))))
+  (let-values ([(fn args) (parse-apply-arguments args)])
+    (b:apply b:keyword-apply fn kws kw-vals args)))
 
 ; just like b:apply, but converts the last argument to a list from an arbitrary sequence
 (define apply (make-keyword-procedure apply/kws apply/basic))
@@ -178,19 +176,20 @@
 
 ; conj over multiple items
 (define (conj* seq . items)
-  (b:foldl conj seq items))
+  (foldl conj seq items))
 
 ; extend over multiple sequences
 (define (extend* seq . seqs)
-  (b:foldl extend seq seqs))
+  (foldl extend seq seqs))
 
 ; lazy filter
 (define (filter pred seq)
-  (let ([head (first seq)]
-        [tail (rest seq)])
-    (if head
-        (b:stream-cons head (filter pred tail))
-        (filter pred tail))))
+  (if (empty? seq) b:empty-stream
+      (let ([head (first seq)]
+            [tail (rest seq)])
+        (if (pred head)
+            (b:stream-cons head (filter pred tail))
+            (filter pred tail)))))
 
 ; lazy map
 (define (map proc . seqs)
