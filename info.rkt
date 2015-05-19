@@ -8,6 +8,7 @@
 (define deps
   '("base"
     "unstable-list-lib"
+    "rackunit-lib"
     "alexis-util"))
 (define build-deps
   '("scribble-lib"
