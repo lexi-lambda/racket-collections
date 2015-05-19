@@ -6,7 +6,8 @@
 (define version "0.2.0")
 
 (define deps
-  '("base"))
+  '("base"
+    "alexis-util"))
 (define build-deps
   '("scribble-lib"
     "racket-doc"
