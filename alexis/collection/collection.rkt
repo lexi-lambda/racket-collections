@@ -57,6 +57,9 @@
 (define (-extend coll coll*)
   (foldl conj coll coll*))
 
+(define (-empty? seq)
+  (zero? (length seq)))
+
 (define (-first seq)
   (nth seq 0))
 
@@ -96,7 +99,8 @@
   (rest sequence)
   (nth sequence index)
   #:fallbacks
-  [(define first -first)
+  [(define empty? -empty?)
+   (define first -first)
    (define nth -nth)]
   #:fast-defaults
   ([pair?
@@ -105,7 +109,6 @@
     (define rest b:cdr)])
   #:defaults
   ([(conjoin vector? immutable?)
-    (define empty? (compose1 zero? vector-length))
     (define nth vector-ref)
     (define rest (compose1 b:stream-rest b:sequence->stream b:in-vector))]
    [b:stream?
