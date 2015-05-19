@@ -9,7 +9,8 @@
          (prefix-in b: racket/list)
          (prefix-in b: racket/vector)
          (prefix-in b: racket/set)
-         (prefix-in b: racket/stream))
+         (prefix-in b: racket/stream)
+         "countable.rkt")
 
 (provide
  gen:collection collection? collection/c
@@ -127,6 +128,10 @@
 ; two sequences concatenated together in order, for laziness
 (struct concatenated-sequence (a b)
   #:reflection-name 'lazy-sequence
+  #:methods gen:countable
+  [(define/generic -length length)
+   (define/match* (length (concatenated-sequence a b))
+     (+ (-length a) (-length b)))]
   #:methods gen:sequence
   [(define/generic -empty? empty?)
    (define/generic -first first)
