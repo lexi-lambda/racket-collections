@@ -20,15 +20,15 @@
  first rest apply
  (contract-out
   ; gen:collection
-  [extend (sequence? sequence? . -> . sequence?)]
-  [conj (sequence? any/c . -> . sequence?)]
+  [extend (collection? sequence? . -> . collection?)]
+  [conj (collection? any/c . -> . collection?)]
   ; gen:sequence
   [empty? (sequence? . -> . boolean?)]
   [nth (sequence? exact-nonnegative-integer? . -> . any)]
   [reverse (sequence? . -> . sequence?)]
   ; derived functions
-  [extend* ([sequence?] #:rest (listof sequence?) . ->* . sequence?)]
-  [conj* ([sequence?] #:rest any/c . ->* . sequence?)]
+  [extend* ([collection?] #:rest (listof sequence?) . ->* . sequence?)]
+  [conj* ([collection?] #:rest any/c . ->* . sequence?)]
   [append ([] #:rest (listof sequence?) . ->* . sequence?)]
   [filter ((any/c . -> . any/c) sequence? . -> . sequence?)]
   [map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (b:length seqs))
