@@ -31,6 +31,11 @@
  (check-equal? (nth '(a b c) 1) 'b))
 
 (test-case
+ "Sequence reversal"
+ (check-equal? (reverse '(1 2 3)) '(3 2 1))
+ (check-equal? (extend '() (reverse #(1 2 3))) '(1 2 3)))
+
+(test-case
  "Sequence-based application"
  (check-equal? (apply +) 0)
  (check-equal? (apply + #(1 1 1)) 3)

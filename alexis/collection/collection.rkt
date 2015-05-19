@@ -5,11 +5,13 @@
          unstable/function
          alexis/util/match
          alexis/util/renamed
-         (prefix-in b: racket/base)
-         (prefix-in b: racket/list)
-         (prefix-in b: racket/vector)
-         (prefix-in b: racket/set)
-         (prefix-in b: racket/stream)
+         (prefix-in
+          b: (combine-in
+              racket/base
+              racket/list
+              racket/vector
+              racket/set
+              racket/stream))
          "countable.rkt")
 
 (provide
@@ -23,6 +25,7 @@
   ; gen:sequence
   [empty? (sequence? . -> . boolean?)]
   [nth (sequence? exact-nonnegative-integer? . -> . any)]
+  [reverse (sequence? . -> . sequence?)]
   ; derived functions
   [extend* ([sequence?] #:rest (listof sequence?) . ->* . sequence?)]
   [conj* ([sequence?] #:rest any/c . ->* . sequence?)]
@@ -68,6 +71,11 @@
       (first seq)
       (nth (rest seq) (sub1 index))))
 
+(define (stream-reverse str)
+  (for/fold ([str* b:empty-stream])
+            ([e (b:in-stream str)])
+    (b:stream-cons e str*)))
+
 ;; generic interfaces
 ;; ---------------------------------------------------------------------------------------------------
 
@@ -98,6 +106,7 @@
   (first sequence)
   (rest sequence)
   (nth sequence index)
+  (reverse sequence)
   #:fallbacks
   [(define empty? -empty?)
    (define first -first)
@@ -106,24 +115,29 @@
   ([pair?
     (define empty? b:null?)
     (define first b:car)
-    (define rest b:cdr)])
+    (define rest b:cdr)
+    (define reverse b:reverse)])
   #:defaults
   ([(conjoin vector? immutable?)
     (define nth vector-ref)
-    (define rest (compose1 b:stream-rest b:sequence->stream b:in-vector))]
+    (define rest (compose1 b:stream-rest b:sequence->stream b:in-vector))
+    (define reverse (compose1 stream-reverse b:sequence->stream b:in-vector))]
    [b:stream?
     (define empty? b:stream-empty?)
     (define first b:stream-first)
-    (define rest b:stream-rest)]
+    (define rest b:stream-rest)
+    (define reverse stream-reverse)]
    [(conjoin hash? immutable?)
     (define empty? hash-empty?)
-    (define (hash->stream ht) (b:sequence->stream (b:in-hash-pairs ht)))
+    (define hash->stream (compose1 b:sequence->stream b:in-hash-pairs))
     (define first (compose1 b:stream-first hash->stream))
-    (define rest (compose1 b:stream-rest hash->stream))]
+    (define rest (compose1 b:stream-rest hash->stream))
+    (define reverse (compose1 stream-reverse hash->stream))]
    [b:set?
     (define empty? b:set-empty?)
     (define first (compose1 b:stream-first b:set->stream))
-    (define rest (compose1 b:stream-rest b:set->stream))]))
+    (define rest (compose1 b:stream-rest b:set->stream))
+    (define reverse (compose1 stream-reverse b:set->stream))]))
 
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------
