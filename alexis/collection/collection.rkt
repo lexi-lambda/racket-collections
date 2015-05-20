@@ -1,6 +1,7 @@
 #lang racket/base
 
-(require racket/generic
+(require racket/lazy-require
+         racket/generic
          racket/contract
          unstable/function
          alexis/util/match
@@ -13,6 +14,9 @@
               racket/set
               racket/stream))
          "countable.rkt")
+
+(lazy-require
+ ["private/random-access.rkt" [sequence->random-access-sequence]])
 
 (provide
  gen:collection collection? collection/c
@@ -131,9 +135,11 @@
     (define reverse b:reverse)])
   #:defaults
   ([(conjoin vector? immutable?)
+    (define/generic -rest rest)
+    (define/generic -reverse reverse)
     (define nth vector-ref)
-    (define rest (compose1 b:stream-rest b:sequence->stream b:in-vector))
-    (define reverse (compose1 stream-reverse b:sequence->stream b:in-vector))]
+    (define rest (compose1 -rest sequence->random-access-sequence))
+    (define reverse (compose1 -reverse sequence->random-access-sequence))]
    [b:stream?
     (define empty? b:stream-empty?)
     (define first b:stream-first)
