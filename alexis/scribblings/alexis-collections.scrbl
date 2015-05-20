@@ -145,6 +145,10 @@ Retrieves the element within @racket[seq] at @racket[index].
 
 This method is optional if an implementation of @racket[first] is provided.}
 
+@defproc[(reverse [seq sequence?]) sequence?]{
+Returns a new sequence with all the elements of @racket[seq], but in reverse order. If @racket[seq] is
+infinite, this may not terminate.}
+
 @subsubsection[#:tag "sequence-functions"]{Derived Functions}
 
 @defproc[(apply [arg any/c] ... [args sequence?]) any]{
