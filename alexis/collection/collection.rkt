@@ -26,7 +26,7 @@
   [empty? (sequence? . -> . boolean?)]
   [first ((and/c sequence? (not/c empty?)) . -> . any)]
   [rest ((and/c sequence? (not/c empty?)) . -> . any)]
-  [nth (sequence? exact-nonnegative-integer? . -> . any)]
+  [rename nth* nth (sequence? exact-nonnegative-integer? . -> . any)]
   [reverse (sequence? . -> . sequence?)]
   ; derived functions
   [extend* ([collection?] #:rest (listof sequence?) . ->* . sequence?)]
@@ -52,6 +52,16 @@
   [eighth (sequence? . -> . any)]
   [ninth (sequence? . -> . any)]
   [tenth (sequence? . -> . any)]))
+
+;; wrappers
+;; ---------------------------------------------------------------------------------------------------
+
+; provide nice range errors for countable sequences
+(define (nth* seq i)
+  (when (and (countable? seq)
+             (>= i (length seq)))
+    (raise-range-error 'nth "sequence" "" i seq 0 (sub1 (length seq))))
+  (nth seq i))
 
 ;; fallbacks
 ;; ---------------------------------------------------------------------------------------------------
