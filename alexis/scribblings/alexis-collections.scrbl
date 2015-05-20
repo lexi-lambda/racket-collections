@@ -131,18 +131,21 @@ Determines if @racket[seq] has no values.
 All implementations of @racket[gen:sequence] are required to implement this method, unless they also
 implement @racket[gen:countable].}
 
-@defproc[(first [seq sequence?]) any/c]{
+@defproc[(first [seq (and/c sequence? (not/c empty?))]) any/c]{
 Retrieves the first values in @racket[seq].
 
 This method is optional if an implementation of @racket[nth] is provided.}
 
-@defproc[(rest [seq sequence?]) any/c]{
+@defproc[(rest [seq (and/c sequence? (not/c empty?))]) any/c]{
 Retrieves a new sequence which represents all but the first value in @racket[seq].
 
 All implementations of @racket[gen:sequence] are required to implement this method.}
 
 @defproc[(nth [seq sequence?] [index exact-nonnegative-integer?]) any/c]{
 Retrieves the element within @racket[seq] at @racket[index].
+
+If @racket[seq] also implements @racket[gen:countable], bounds checking will automatically be
+provided, and a @racket[exn:fail:contract] error will be raised if @racket[index] is out of range.
 
 This method is optional if an implementation of @racket[first] is provided.}
 
@@ -170,13 +173,14 @@ applied to them produces a non-@racket[#f] value.}
 @defproc[(map [proc procedure?] [seq sequence?] ...+) sequence?]{
 Returns a new @emph{lazy sequence} consisting of the results of applying @racket[proc] to the elements
 of the provided @racket[seq] arguments. The @racket[proc] procedure must take as many arguments as
-@racket[seq] arguments are provided.}
+@racket[seq] arguments are provided. If more than one @racket[seq] is provided, they must all be of
+the same length.}
 
 @defproc[(foldl [proc procedure?] [init any/c] [seq sequence?] ...+) any/c]{
 Continually applies @racket[proc] over the elements in the provided @racket[seq] arguments, passing
 the result of each application to the subsequent invokation of @racket[proc]. The @racket[proc]
 procedure must accept @italic{n}+1 arguments where @italic{n} is the number of @racket[seq] arguments
-provided.
+provided. If more than one @racket[seq] is provided, they must all be of the same length.
 
 Unlike @racket[base:foldl], the accumulator argument is always provided to @racket[proc] @emph{first},
 not last.}
