@@ -78,3 +78,17 @@
  (check-equal? (eighth (range 10)) 7)
  (check-equal? (ninth (range 10)) 8)
  (check-equal? (tenth (range 10)) 9))
+
+(test-case
+ "Sequence for clause iteration"
+ (check-pred procedure? in)
+ (check-pred stream? (in #(1 2 3)))
+ (check-equal? (for/list ([x (in #(1 2 3))]) (add1 x)) '(2 3 4)))
+
+(test-case
+ "Derived for/sequence loops"
+ (check-equal? (extend #() (for/sequence ([i (in-range 10)]) (* i i)))
+               #(0 1 4 9 16 25 36 49 64 81))
+ (check-equal? (extend #() (for*/sequence ([x (in-range 1 5)]
+                                           [y (in-range 1 5)]) (* x y)))
+               #(1 2 3 4 2 4 6 8 3 6 9 12 4 8 12 16)))

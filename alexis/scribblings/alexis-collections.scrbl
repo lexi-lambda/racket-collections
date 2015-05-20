@@ -12,7 +12,8 @@
               (prefix-in base: racket/base)
               alexis/collection
               racket/generic
-              racket/contract)
+              racket/contract
+              racket/stream)
    scribble/eval
    "private/utils.rkt")
 
@@ -191,6 +192,20 @@ not last.}
               @defproc[(tenth [coll collection?]) any/c])]{
 A set of helper functions for accessing elements of @racket[coll] implemented in terms of
 @racket[nth]. A random-access implementation of @racket[nth] will make these random-access as well.}
+
+@defproc[(in [seq sequence?]) stream?]{
+When used as a procedure, converts @racket[seq] into a lazy @reftech{stream}. This function is
+primarily intended to be used directly in a @racket[for] clause, in which case the sequence will
+be iterated directly without any conversion taking place.}
+
+@deftogether[(@defform[(for/sequence (for-clause ...) body-or-break ... body)]
+              @defform[(for*/sequence (for-clause ...) body-or-break ... body)])]{
+Both forms iterate like @racket[for], but the results of the @racket[body] expressions are collected
+into a @emph{lazy sequence}. This means that the body of the loop isn't actually evaluated until the
+sequence is used, so any side-effects performed will be delayed until the sequence is forced.
+
+The @racket[for*/sequence] form is the same as @racket[for/sequence] but with the implicit nesting
+behavior of @racket[for*].}
 
 @section{General-Purpose Interfaces}
 

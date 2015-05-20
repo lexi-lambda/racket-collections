@@ -1,8 +1,10 @@
 #lang racket/base
 
-(require racket/lazy-require
+(require (for-syntax racket/base)
+         racket/lazy-require
          racket/generic
          racket/contract
+         racket/generator
          unstable/function
          alexis/util/match
          alexis/util/renamed
@@ -21,7 +23,7 @@
 (provide
  gen:collection collection? collection/c
  gen:sequence sequence? sequence/c
- apply
+ apply in for/sequence for*/sequence
  (contract-out
   ; gen:collection
   [extend (collection? sequence? . -> . collection?)]
@@ -272,3 +274,49 @@
 (define (eighth seq)  (nth seq 7))
 (define (ninth seq)   (nth seq 8))
 (define (tenth seq)   (nth seq 9))
+
+; using ‘in’ outside of a for clause converts a sequence to a stream
+(define/contract in/proc
+  (sequence? . -> . b:stream?)
+  (let () ; this is done to get the compiler to statically infer the name as ‘in’, not ‘in-proc’
+    (define (in seq)
+      (if (empty? seq) b:empty-stream
+          (b:stream-cons (first seq) (in/proc (rest seq)))))
+    in))
+
+; if used in a for clause, it uses the sequence directly
+(define-sequence-syntax in
+  (λ () #'in/proc)
+  (λ (stx)
+    (syntax-case stx ()
+      [[(e) (_ seq)]
+       #'[(e)
+          (:do-in
+           ([(s) seq])
+           (unless (sequence? s)
+             (raise-argument-error 'in "sequence?" s))
+           ([v s])
+           (not (empty? v))
+           ([(e) (first v)]
+            [(r) (rest v)])
+           #t #t
+           [r])]])))
+
+(define-syntaxes (for/sequence for*/sequence)
+  (let ()
+    (define ((make-for/sequence name derived-stx) stx)
+      (syntax-case stx ()
+        [(_ clauses . body)
+         (begin
+           (when (null? (syntax->list #'body))
+             (raise-syntax-error name
+                                 "missing body expression after sequence bindings"
+                                 stx #'body))
+           #`(sequence->stream
+              (in-generator
+               (#,derived-stx
+                #,stx () clauses
+                (yield (let () . body))
+                (values)))))]))
+    (values (make-for/sequence 'for/sequence #'for/fold/derived)
+            (make-for/sequence 'for*/sequence #'for*/fold/derived))))
