@@ -17,13 +17,15 @@
 (provide
  gen:collection collection? collection/c
  gen:sequence sequence? sequence/c
- first rest apply
+ apply
  (contract-out
   ; gen:collection
   [extend (collection? sequence? . -> . collection?)]
   [conj (collection? any/c . -> . collection?)]
   ; gen:sequence
   [empty? (sequence? . -> . boolean?)]
+  [first ((and/c sequence? (not/c empty?)) . -> . any)]
+  [rest ((and/c sequence? (not/c empty?)) . -> . any)]
   [nth (sequence? exact-nonnegative-integer? . -> . any)]
   [reverse (sequence? . -> . sequence?)]
   ; derived functions
