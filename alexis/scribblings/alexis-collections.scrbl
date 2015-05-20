@@ -155,9 +155,9 @@ infinite, this may not terminate.}
 
 @subsubsection[#:tag "sequence-functions"]{Derived Functions}
 
-@defproc[(apply [arg any/c] ... [args sequence?]) any]{
+@defproc[(apply [proc procedure?] [arg any/c] ... [args sequence?] [#:<kw> kw-arg any/c] ...) any]{
 The same as @racket[base:apply] but with support for any sequence as the final argument instead of
-only lists.}
+only lists. Just like in @racket[base:apply], @racket[#:<kw>] stands for any keyword.}
 
 @defproc[(append [seq sequence?] ...) any/c]{
 Returns a new @emph{lazy sequence} with all the values of the @racket[seq] arguments concatenated, in
