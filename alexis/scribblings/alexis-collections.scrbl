@@ -84,7 +84,7 @@ requirement for @emph{where} the value is added to the collection—@reftech{lis
 If @racket[extend] is implemented but not @racket[conj], an implementation will automatically be
 provided.}
 
-@defproc[(extend [a collection?] [b collection?]) collection]{
+@defproc[(extend [a collection?] [b collection?]) collection?]{
 Returns a new collection with all the items in both @racket[a] and @racket[b], and the result is the
 same kind of collection as @racket[a].
 
