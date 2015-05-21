@@ -130,7 +130,7 @@
    (define first -first)
    (define nth -nth)]
   #:fast-defaults
-  ([pair?
+  ([(disjoin pair? null?)
     (define empty? b:null?)
     (define first b:car)
     (define rest b:cdr)
