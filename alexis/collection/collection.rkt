@@ -65,6 +65,7 @@
 ; provide nice range errors for countable sequences
 (define (nth* seq i)
   (when (and (countable? seq)
+             (known-finite? seq)
              (>= i (length seq)))
     (raise-range-error 'nth "sequence" "" i seq 0 (sub1 (length seq))))
   (nth seq i))

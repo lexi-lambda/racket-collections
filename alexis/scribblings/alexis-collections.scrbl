@@ -144,8 +144,9 @@ All implementations of @racket[gen:sequence] are required to implement this meth
 @defproc[(nth [seq sequence?] [index exact-nonnegative-integer?]) any/c]{
 Retrieves the element within @racket[seq] at @racket[index].
 
-If @racket[seq] also implements @racket[gen:countable], bounds checking will automatically be
-provided, and a @racket[exn:fail:contract] error will be raised if @racket[index] is out of range.
+If @racket[seq] also implements @racket[gen:countable] @emph{and} is @racket[known-finite?], bounds
+checking will automatically be provided, and a @racket[exn:fail:contract] error will be raised if
+@racket[index] is out of range.
 
 This method is optional if an implementation of @racket[first] is provided.}
 
@@ -222,8 +223,9 @@ elements. The @racket[gen:countable] interface only provides a single function, 
 
 @defthing[gen:countable any/c]{
 
-A @reftech{generic interface} that defines exactly one function, @racket[length], which accepts a
-single argument and returns the number of elements contained within the collection.
+A @reftech{generic interface} that defines two functions, @racket[length], which accepts a
+single argument and returns the number of elements contained within the collection, and
+@racket[known-finite?], which provides a pessimistic check for finite collections.
 
 The following built-in datatypes have implementations for @racket[gen:countable]:
 
@@ -257,9 +259,15 @@ For @reftech{streams}, if the argument is infinite, then @racket[length] does no
 A predicate that identifies if @racket[v] is @tech{countable}.}
 
 @defproc[(length [countable countable?]) exact-nonnegative-integer?]{
-
 Returns the number of discrete elements contained by @racket[countable]. If @racket[countable] is
 infinite, then this function does not terminate.}
+
+@defproc[(known-finite? [countable countable?]) boolean?]{
+If this function returns @racket[#t], then @racket[countable] @emph{must} be finite, and therefore,
+@racket[length] must terminate. If this function returns @racket[#f], then no additional information
+is gained: @racket[countable] could be either finite or infinite.
+
+If no implementation for @racket[known-finite?] is provided, it will always return @racket[#f].}
 
 @subsection{Indexable Collections}
 
