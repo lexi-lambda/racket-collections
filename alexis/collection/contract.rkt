@@ -73,6 +73,8 @@
              (((contract-projection (cons/c elem-ctc ctc)) passthrough-blame) val)]
             [((conjoin vector? immutable?) val)
              (((contract-projection (vectorof elem-ctc #:immutable #t)) sequence-blame) val)]
+            [(set? val)
+             (((contract-projection (set/c elem-ctc #:kind 'immutable)) passthrough-blame) val)]
             [(stream? val)
              (((contract-projection (stream/c elem-ctc)) passthrough-blame) val)]
             ; force hashes to streams for the contract checking
@@ -80,8 +82,6 @@
             [(and (not chaperone?) ((conjoin hash? immutable?) val))
              (((contract-projection (stream/c elem-ctc)) passthrough-blame)
               (sequence->stream (in-hash-pairs val)))]
-            [(set? val)
-             (((contract-projection (set/c elem-ctc #:kind 'immutable)) passthrough-blame) val)]
             [else
              (redirect-sequence
               val chaperone?
