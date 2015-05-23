@@ -36,13 +36,7 @@ This collection provides a number of bindings that override bindings in @racketm
 some with slightly different semantics in addition to support for multiple kinds of collections. For
 this reason, this @emph{may} not be a drop-in replacement for existing code.
 
-The @racketmodname[alexis/collection] module exports the bindings from
-@racketmodname[alexis/collection/countable], @racketmodname[alexis/collection/indexable],
-and @racketmodname[alexis/collection/collection].
-
 @section{Generic Collections and Sequences}
-
-@defmodule[alexis/collection/collection]
 
 @tech{Generic sequences} are the bulk of this library, providing a uniform interface for interacting
 with collections. Sequences are distinct from Racket @reftech{sequences}, which are a different, much
@@ -156,6 +150,9 @@ infinite, this may not terminate.}
 
 @subsubsection[#:tag "sequence-functions"]{Derived Functions}
 
+@defproc[(last [seq sequence?]) any/c]{
+Gets the last element of @racket[seq]. If @racket[seq] is infinite, this may not terminate.}
+
 @defproc[(apply [proc procedure?] [arg any/c] ... [args sequence?] [#:<kw> kw-arg any/c] ...) any]{
 The same as @racket[base:apply] but with support for any sequence as the final argument instead of
 only lists. Just like in @racket[base:apply], @racket[#:<kw>] stands for any keyword.}
@@ -166,6 +163,18 @@ order.
 
 In many cases, it may be preferably to use @racket[extend] or @racket[extend*], which may also provide
 better performance, especially for homogenous sequence types.}
+
+@defproc[(take [n exact-nonnegative-integer?] [seq sequence?]) sequence?]{
+Returns a new @emph{lazy sequence} that contains the first @racket[n] elements of @racket[seq].}
+
+@defproc[(drop [n exact-nonnegative-integer?] [seq sequence?]) sequence?]{
+Returns a new sequence that contains all @emph{except} the first @racket[n] elements of @racket[seq].}
+
+@defproc[(subsequence [seq sequence?]
+                      [start exact-nonnegative-integer?]
+                      [end exact-nonnegative-integer?]) sequence?]{
+Returns a new sequence containing the elements of @racket[seq] from @racket[start], inclusive, to
+@racket[end], exclusive. Equivalent to @racket[(take (- end start) (drop start seq))].}
 
 @defproc[(filter [pred (any/c . -> . any/c)] [seq sequence?]) sequence?]{
 Returns a new @emph{lazy sequence} containing all the elements of @racket[seq] for which @racket[pred]
@@ -215,8 +224,6 @@ behavior of @racket[for*].}
 @section{General-Purpose Interfaces}
 
 @subsection{Countable Collections}
-
-@defmodule[alexis/collection/countable]
 
 Lots of data structures may be considered @deftech{countable}—that is, they have a discrete number of
 elements. The @racket[gen:countable] interface only provides a single function, @racket[length].
@@ -270,8 +277,6 @@ is gained: @racket[countable] could be either finite or infinite.
 If no implementation for @racket[known-finite?] is provided, it will always return @racket[#f].}
 
 @subsection{Indexable Collections}
-
-@defmodule[alexis/collection/indexable]
 
 Data structures are @deftech{indexable} if they provide any sort of indexed data.
 
