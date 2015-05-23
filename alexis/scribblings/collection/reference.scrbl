@@ -67,7 +67,7 @@ provided.
   (conj #(1 2) 3)
   (conj (hash) '(a . b)))}
 
-@defproc[(extend [a collection?] [b collection?]) collection?]{
+@defproc[(extend [a collection?] [b sequence?]) collection?]{
 Returns a new collection with all the items in both @racket[a] and @racket[b], and the result is the
 same kind of collection as @racket[a].
 
@@ -88,7 +88,7 @@ Repeatedly calls @racket[conj] for each @racket[item] provided, in order.
 @(coll-examples
   (conj* '() 1 2 3 4))}
 
-@defproc[(extend* [base collection?] [extension collection?] ...) collection?]{
+@defproc[(extend* [base collection?] [extension sequence?] ...) collection?]{
 Repeatedly calls @racket[extend] for each @racket[extension] provided, in order.
 
 @(coll-examples
