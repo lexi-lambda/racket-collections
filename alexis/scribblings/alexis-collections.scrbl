@@ -18,15 +18,6 @@
    scribble/eval
    "private/utils.rkt")
 
-@(define evaluator
-   (make-eval-factory
-    #:lang 'racket
-    '(racket/generic
-      alexis/collection)))
-
-@(define-syntax-rule (coll-examples . body)
-   (examples #:eval (evaluator) . body))
-
 @title{Generic Collections}
 
 @defmodule[alexis/collection]
@@ -131,8 +122,7 @@ The following built-in datatypes have implementations for @racket[gen:sequence]:
  @item{@emph{immutable} @reftech{hash sets}}
  @item{@reftech{streams}}]
 
-@(examples
-  #:eval (evaluator)
+@(coll-examples
   (extend (set) (map + '(1 2 3) #(4 5 6))))}
 
 @defproc[(sequence? [v any/c]) boolean?]{
@@ -360,8 +350,7 @@ The following built-in datatypes have implementations for @racket[gen:countable]
 
 For @reftech{streams}, if the argument is infinite, then @racket[length] does not terminate.
 
-@(examples
-  #:eval (evaluator)
+@(coll-examples
   (length (range 20))
   (length #(λ))
   (length "Hello!")
@@ -411,8 +400,7 @@ All @tech{generic sequences} are also @tech{indexable}, so implementations of @r
 @emph{not} need to implement @racket[gen:indexable]. Additionally, mutable @reftech{hash tables},
 mutable @reftech{vectors}, and @reftech{dictionaries} are also indexable.
 
-@(examples
-  #:eval (evaluator)
+@(coll-examples
   (ref '(a b c) 1)
   (ref (hash 'foo "bar") 'foo))}
 
