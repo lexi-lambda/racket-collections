@@ -48,6 +48,7 @@
                [init any/c])
               #:rest [seqs (non-empty-listof sequence?)]
               [result any/c])]
+  [sequence->list (sequence? . -> . list?)]
   ; helpers
   [second (sequence? . -> . any)]
   [third (sequence? . -> . any)]
@@ -275,6 +276,9 @@
 (define (eighth seq)  (nth seq 7))
 (define (ninth seq)   (nth seq 8))
 (define (tenth seq)   (nth seq 9))
+
+(define (sequence->list seq)
+  (reverse (extend '() seq)))
 
 ; using ‘in’ outside of a for clause converts a sequence to a stream
 (define/contract in/proc

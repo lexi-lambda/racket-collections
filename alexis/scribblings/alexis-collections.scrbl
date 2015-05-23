@@ -221,6 +221,12 @@ sequence is used, so any side-effects performed will be delayed until the sequen
 The @racket[for*/sequence] form is the same as @racket[for/sequence] but with the implicit nesting
 behavior of @racket[for*].}
 
+@defproc[(sequence->list [seq sequence?]) list?]{
+Converts any sequence to a list. Equivalent to @racket[(reverse (extend '() seq))].
+
+If @racket[seq] is infinite, then this function will not terminate, and it will infinitely allocate
+memory until it is exhausted.}
+
 @section{General-Purpose Interfaces}
 
 @subsection{Countable Collections}
