@@ -5,6 +5,7 @@
          racket/generic
          racket/contract
          racket/generator
+         racket/function
          unstable/function
          alexis/util/match
          alexis/util/renamed
@@ -14,7 +15,8 @@
               racket/list
               racket/vector
               racket/set
-              racket/stream))
+              racket/stream
+              racket/dict))
          "countable.rkt")
 
 (lazy-require
@@ -118,7 +120,12 @@
       ((and/c hash? immutable?) pair? . -> . (and/c hash? immutable?))
       (hash-set hsh (car item) (cdr item)))]
    [b:set?
-    (define conj b:set-add)]))
+    (define conj b:set-add)]
+   [(conjoin b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?)
+    (define/contract (conj dct item)
+      ((and/c b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?)
+       pair? . -> . (and/c b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?))
+      (b:dict-set dct (car item) (cdr item)))]))
 
 ; a sequence is an ordered set of values
 (define-generics sequence
@@ -159,7 +166,12 @@
     (define empty? b:set-empty?)
     (define first (compose1 b:stream-first b:set->stream))
     (define rest (compose1 b:stream-rest b:set->stream))
-    (define reverse (compose1 stream-reverse b:set->stream))]))
+    (define reverse (compose1 stream-reverse b:set->stream))]
+   [(conjoin b:dict? (negate b:dict-mutable?))
+    (define empty? b:dict-empty?)
+    (define first (compose1 b:stream-first b:sequence->stream b:in-dict-pairs))
+    (define rest (compose1 b:stream-rest b:sequence->stream b:in-dict-pairs))
+    (define reverse (compose1 stream-reverse b:sequence->stream b:in-dict-pairs))]))
 
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------

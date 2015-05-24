@@ -32,5 +32,5 @@
           (define (known-finite? c) #t)]
    [set? (define length set-count)
          (define (known-finite? c) #t)]
-   [dict? (define length dict-count)]
-   [stream? (define length stream-length)]))
+   [stream? (define length stream-length)]
+   [dict? (define length dict-count)]))

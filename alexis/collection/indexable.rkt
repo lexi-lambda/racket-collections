@@ -1,7 +1,9 @@
 #lang racket/base
 
 (require racket/generic
-         racket/lazy-require
+         racket/function
+         unstable/function
+         racket/dict
          "collection.rkt")
 
 (provide
@@ -12,4 +14,5 @@
   (ref indexable . _)
   #:defaults
   ([hash? (define ref hash-ref)]
+   [(conjoin (negate list?) dict?) (define ref dict-ref)]
    [sequence? (define ref nth)]))
