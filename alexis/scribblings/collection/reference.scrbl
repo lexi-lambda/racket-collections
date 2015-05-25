@@ -42,7 +42,8 @@ The following built-in datatypes have implementations for @racket[gen:collection
  @item{@reftech{lists}}
  @item{@emph{immutable} @reftech{hash tables}}
  @item{@emph{immutable} @reftech{vectors}}
- @item{@emph{immutable} @reftech{hash sets}}]
+ @item{@emph{immutable} @reftech{hash sets}}
+ @item{@emph{immutable} @reftech{dictionaries}}]
 
 @(coll-examples
   (conj #(1 2 3) 4)
@@ -109,6 +110,7 @@ The following built-in datatypes have implementations for @racket[gen:sequence]:
  @item{@emph{immutable} @reftech{hash tables}}
  @item{@emph{immutable} @reftech{vectors}}
  @item{@emph{immutable} @reftech{hash sets}}
+ @item{@emph{immutable} @reftech{dictionaries}}
  @item{@reftech{streams}}]
 
 @(coll-examples
