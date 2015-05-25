@@ -92,3 +92,9 @@
  (check-equal? (extend #() (for*/sequence ([x (in-range 1 5)]
                                            [y (in-range 1 5)]) (* x y)))
                #(1 2 3 4 2 4 6 8 3 6 9 12 4 8 12 16)))
+
+(test-case
+ "Special sequence errors on mutable builtins"
+ (check-exn #rx"which is mutable" (thunk (empty? (vector))))
+ (check-exn #rx"which is mutable" (thunk (empty? (make-hash))))
+ (check-exn #rx"which is mutable" (thunk (empty? (mutable-set)))))

@@ -24,43 +24,43 @@
 
 (provide
  gen:collection collection? collection/c
- gen:sequence sequence? sequence/c
+ gen:sequence (rename-out [sequence?* sequence?]) sequence/c
  apply in for/sequence for*/sequence
  (contract-out
   ; gen:collection
-  [extend (collection? sequence? . -> . collection?)]
+  [extend (collection? sequence?* . -> . collection?)]
   [conj (collection? any/c . -> . collection?)]
   ; gen:sequence
-  [empty? (sequence? . -> . boolean?)]
-  [first ((and/c sequence? (not/c empty?)) . -> . any)]
-  [rest ((and/c sequence? (not/c empty?)) . -> . any)]
-  [rename nth* nth (sequence? exact-nonnegative-integer? . -> . any)]
-  [reverse (sequence? . -> . sequence?)]
+  [empty? (sequence?* . -> . boolean?)]
+  [first ((and/c sequence?* (not/c empty?)) . -> . any)]
+  [rest ((and/c sequence?* (not/c empty?)) . -> . any)]
+  [rename nth* nth (sequence?* exact-nonnegative-integer? . -> . any)]
+  [reverse (sequence?* . -> . sequence?*)]
   ; derived functions
-  [extend* ([collection?] #:rest (listof sequence?) . ->* . sequence?)]
-  [conj* ([collection?] #:rest any/c . ->* . sequence?)]
-  [append ([] #:rest (listof sequence?) . ->* . sequence?)]
-  [filter ((any/c . -> . any/c) sequence? . -> . sequence?)]
+  [extend* ([collection?] #:rest (listof sequence?*) . ->* . sequence?*)]
+  [conj* ([collection?] #:rest any/c . ->* . sequence?*)]
+  [append ([] #:rest (listof sequence?*) . ->* . sequence?*)]
+  [filter ((any/c . -> . any/c) sequence?* . -> . sequence?*)]
   [map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (b:length seqs))
                                  (unconstrained-domain-> any/c))])
-            #:rest [seqs (non-empty-listof sequence?)]
-            [result sequence?])]
+            #:rest [seqs (non-empty-listof sequence?*)]
+            [result sequence?*])]
   [foldl (->i ([proc (seqs) (and/c (procedure-arity-includes/c (add1 (b:length seqs)))
                                    (unconstrained-domain-> any/c))]
                [init any/c])
-              #:rest [seqs (non-empty-listof sequence?)]
+              #:rest [seqs (non-empty-listof sequence?*)]
               [result any/c])]
-  [sequence->list (sequence? . -> . list?)]
+  [sequence->list (sequence?* . -> . list?)]
   ; helpers
-  [second (sequence? . -> . any)]
-  [third (sequence? . -> . any)]
-  [fourth (sequence? . -> . any)]
-  [fifth (sequence? . -> . any)]
-  [sixth (sequence? . -> . any)]
-  [seventh (sequence? . -> . any)]
-  [eighth (sequence? . -> . any)]
-  [ninth (sequence? . -> . any)]
-  [tenth (sequence? . -> . any)]))
+  [second (sequence?* . -> . any)]
+  [third (sequence?* . -> . any)]
+  [fourth (sequence?* . -> . any)]
+  [fifth (sequence?* . -> . any)]
+  [sixth (sequence?* . -> . any)]
+  [seventh (sequence?* . -> . any)]
+  [eighth (sequence?* . -> . any)]
+  [ninth (sequence?* . -> . any)]
+  [tenth (sequence?* . -> . any)]))
 
 ;; wrappers
 ;; ---------------------------------------------------------------------------------------------------
@@ -97,6 +97,9 @@
   (for/fold ([str* b:empty-stream])
             ([e (b:in-stream str)])
     (b:stream-cons e str*)))
+
+(define (raise-mutability-error name bad-pos . args)
+  (b:apply raise-argument-error name "immutable?" bad-pos args))
 
 ;; generic interfaces
 ;; ---------------------------------------------------------------------------------------------------
@@ -172,6 +175,23 @@
     (define first (compose1 b:stream-first b:sequence->stream b:in-dict-pairs))
     (define rest (compose1 b:stream-rest b:sequence->stream b:in-dict-pairs))
     (define reverse (compose1 stream-reverse b:sequence->stream b:in-dict-pairs))]))
+
+; create a custom flat contract to provide nice error messages for mutable builtins
+(define sequence?*
+  (make-flat-contract
+   #:name 'sequence?
+   #:first-order sequence?
+   #:projection
+   (λ (blame)
+     (λ (val)
+       (cond
+         [(sequence? val) val]
+         [(disjoin vector? hash? b:set-mutable? b:set-weak? b:dict?)
+          (raise-blame-error
+           blame val
+           '(expected: "(and/c immutable? sequence?)" given: "~e, which is mutable") val)]
+         [else
+          (raise-blame-error blame val '(expected: "sequence?" given: "~e") val)])))))
 
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------
@@ -294,7 +314,7 @@
 
 ; using ‘in’ outside of a for clause converts a sequence to a stream
 (define/contract in/proc
-  (sequence? . -> . b:stream?)
+  (sequence?* . -> . b:stream?)
   (let () ; this is done to get the compiler to statically infer the name as ‘in’, not ‘in-proc’
     (define (in seq)
       (if (empty? seq) b:empty-stream

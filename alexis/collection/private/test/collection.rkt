@@ -2,7 +2,7 @@
 
 (require
   rackunit
-  alexis/collection/collection
+  alexis/collection
   racket/set
   racket/function)
 
