@@ -14,5 +14,5 @@
   (ref indexable . _)
   #:defaults
   ([hash? (define ref hash-ref)]
-   [(conjoin (negate list?) dict?) (define ref dict-ref)]
+   [dict? (define ref dict-ref)]
    [sequence? (define ref nth)]))

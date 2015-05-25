@@ -383,17 +383,20 @@ A @reftech{generic interface} that defines exactly one function, @racket[ref], w
 instance of @racket[gen:indexable] and an index.
 
 @margin-note{
-Be careful when using @racket[ref] with @reftech{dictionaries}. While they @emph{are}
-@tech{indexable}, using @racket[ref] with @reftech{association lists} will use @racket[list-ref]
-rather than @racket[dict-ref].}
+Be careful when using @racket[ref] with @tech{generic sequences}. If numeric indexing is your
+intention, use @racket[nth] instead, since @racket[ref] and @racket[nth] may have different behaviors
+on the same sequence. Notably, @racket[ref] on @reftech{association lists} uses @racket[dict-ref], not
+@racket[list-ref].}
 
 All @tech{generic sequences} are also @tech{indexable}, so implementations of @racket[gen:sequence] do
-@emph{not} need to implement @racket[gen:indexable]. Additionally, mutable @reftech{hash tables},
-mutable @reftech{vectors}, and @reftech{dictionaries} are also indexable.
+@emph{not} need to implement @racket[gen:indexable] if they provide simply key/value mappings based on
+index. Additionally, mutable @reftech{hash tables}, mutable @reftech{vectors},
+and @reftech{dictionaries} are also indexable.
 
 @(coll-examples
   (ref '(a b c) 1)
-  (ref (hash 'foo "bar") 'foo))}
+  (ref (hash 'foo "bar") 'foo)
+  (ref '((1 . 2) (3 . 4)) 1))}
 
 @defproc[(indexable? [v any/c]) boolean?]{
 
