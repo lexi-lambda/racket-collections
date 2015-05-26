@@ -262,6 +262,10 @@ not last.
   (foldl cons null (set 1 2 3 4))
   (foldl (λ (a b) (cons b a)) null (set 1 2 3 4)))}
 
+@defproc[(for-each [proc procedure?] [seq sequence?] ...+) void?]{
+Applies @racket[proc] over the @racket[seq] arguments just like @racket[map], but does so strictly and
+does not return a sequence. Instead, it simply returns @|void-const|.}
+
 @deftogether[(@defproc[(second [coll collection?]) any/c]
               @defproc[(third [coll collection?]) any/c]
               @defproc[(fourth [coll collection?]) any/c]
