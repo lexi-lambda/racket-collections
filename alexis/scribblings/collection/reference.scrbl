@@ -419,3 +419,20 @@ A predicate that identifies if @racket[v] is @tech{indexable}.}
 @defproc[(ref [collection indexable?] [index any/c]) any]{
 
 Returns the value associated with the provided @racket[index] for the given @racket[collection].}
+
+@subsection{Contracts on Collections}
+
+@defproc[(sequenceof [ctc contract?] [#:chaperone? chaperone? any/c #f]) contract?]{
+Produces a @reftech{contract} that recognizes sequences and ensures their elements all match the
+@racket[ctc] contract. When a @racket[sequenceof] contract is applied to a sequence, the result is not
+@racket[eq?] to its input.
+
+If @racket[chaperone?] is non-@racket[#f], then the result will always be a
+@racket[chaperone-contract?], and @racket[ctc] @emph{must} also be a @racket[chaperone-contract?]. If
+@racket[chaperone?] is @racket[#f], the result will always be a simple @racket[contract?].
+
+For most sequence types, when a @racket[sequenceof] contract is applied to a sequence, the result is
+always @racket[equal?] to its input. However, for a small set of sequences, such as @reftech{hash
+tables}, @reftech{strings}, and @reftech{byte strings}, the result will be an entirely disparate type
+of sequence. This behavior is only supported for non-chaperone contracts, so if @racket[chaperone?] is
+non-@racket[#f], then those sequences will not be permitted by the contract.}

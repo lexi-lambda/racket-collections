@@ -10,19 +10,7 @@
 
 (provide
  (contract-out
-  [sequenceof
-   ; this expresses the relationship between the #:type parameter and the args/result
-   ; if type is 'chaperone, ctc must be a chaperone contract
-   ; also, if type is 'chaperone or if type is #f and ctc is a chaperone contract,
-   ; then the result must be a chaperone contract
-   (->i ([ctc (type) (if (eq? type 'chaperone)
-                         chaperone-contract?
-                         contract?)])
-        (#:type [type (or/c #f 'chaperone 'impersonator)])
-        [result (ctc type) (if (or (eq? type 'chaperone)
-                                   (and (eq? type #f) (chaperone-contract? type)))
-                               chaperone-contract?
-                               contract?)])]))
+  [sequenceof ([contract?] [#:chaperone? any/c] . ->* . contract?)]))
 
 (define (add-sequence-context blame)
   (blame-add-context blame "a value in"))
@@ -114,10 +102,8 @@
    #:stronger sequenceof-stronger?
    #:projection (ho-projection #f)))
 
-(define (sequenceof v #:type [type #f])
+(define (sequenceof v #:chaperone? [chaperone? #f])
   (define ctc (coerce-contract 'sequenceof v))
-  (if (or (eq? type 'chaperone)
-          (and (eq? type #f)
-               (chaperone-contract? ctc)))
+  (if chaperone?
       (chaperone-sequenceof ctc)
       (impersonator-sequenceof ctc)))
