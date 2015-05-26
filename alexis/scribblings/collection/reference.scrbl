@@ -228,6 +228,16 @@ Returns a new sequence containing the elements of @racket[seq] from @racket[star
 @(coll-examples
   (sequence->list (subsequence (in-naturals) 10 20)))}
 
+@defproc[(subsequence* [seq sequence?]
+                       [start exact-nonnegative-integer?]
+                       [len exact-nonnegative-integer?]) sequence?]{
+Like @racket[subsequence], but instead of specifying the end index, @racket[len] specifies the length
+of the resulting sequence. Equivalent to @racket[(take len (drop start seq))] and
+@racket[(subsequence seq start (+ start len))].
+
+@(coll-examples
+  (sequence->list (subsequence* (in-naturals) 20 5)))}
+
 @defproc[(filter [pred (any/c . -> . any/c)] [seq sequence?]) sequence?]{
 Returns a new @emph{lazy sequence} containing all the elements of @racket[seq] for which @racket[pred]
 applied to them produces a non-@racket[#f] value.

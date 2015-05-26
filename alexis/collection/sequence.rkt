@@ -22,7 +22,8 @@
   [subsequence (->i ([seq sequence?]
                      [start exact-nonnegative-integer?]
                      [end (start) (and/c exact-nonnegative-integer? (>=/c start))])
-                    [result sequence?])]))
+                    [result sequence?])]
+  [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]))
 
 ; like map, but strict, returns void, and is only for side-effects
 (define (for-each proc . seqs)
@@ -91,3 +92,13 @@
     (when (> end (length seq))
       (raise-range-error 'subsequence "sequence" "end " end seq 0 (length seq))))
   (take (- end start) (drop start seq)))
+
+; like subsequence but specifying a length instead of an end index
+(define (subsequence* seq start len)
+  (when (and (countable? seq)
+             (known-finite? seq))
+    (when (> start (length seq))
+      (raise-range-error 'subsequence* "sequence" "start " start seq 0 (length seq)))
+    (when (> (+ start len) (length seq))
+      (raise-range-error 'subsequence* "sequence" "end " (+ start len) seq 0 (length seq))))
+  (take len (drop start seq)))
