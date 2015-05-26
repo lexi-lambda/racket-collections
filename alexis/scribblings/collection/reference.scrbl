@@ -328,6 +328,14 @@ memory until it is exhausted.
   (sequence->list #(1 2 3))
   (sequence->list (hash 'a 'b 1 2 "foo" "bar")))}
 
+@defproc[(sequence->string [seq (sequenceof char?)]) (and/c string? sequence?)]{
+Converts @racket[seq], which must contain only @reftech{characters}, to an immutable
+@reftech{string}.}
+
+@defproc[(sequence->bytes [seq (sequenceof byte?)]) (and/c bytes? sequence?)]{
+Converts @racket[seq], which must contain only
+@tech[#:doc '(lib "scribblings/guide/guide.scrbl")]{bytes}, to an immutable @reftech{byte string}.}
+
 @section{General-Purpose Interfaces}
 
 @subsection{Countable Collections}

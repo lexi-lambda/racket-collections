@@ -175,7 +175,15 @@
     (define empty? b:dict-empty?)
     (define first (compose1 b:stream-first b:sequence->stream b:in-dict-pairs))
     (define rest (compose1 b:stream-rest b:sequence->stream b:in-dict-pairs))
-    (define reverse (compose1 stream-reverse b:sequence->stream b:in-dict-pairs))]))
+    (define reverse (compose1 stream-reverse b:sequence->stream b:in-dict-pairs))]
+   [(conjoin string? immutable?)
+    (define nth string-ref)
+    (define rest (compose1 b:stream-rest b:sequence->stream in-string))
+    (define reverse (compose1 stream-reverse b:sequence->stream in-string))]
+   [(conjoin bytes? immutable?)
+    (define nth bytes-ref)
+    (define rest (compose1 b:stream-rest b:sequence->stream in-bytes))
+    (define reverse (compose1 stream-reverse b:sequence->stream in-bytes))]))
 
 ; create a custom flat contract to provide nice error messages for mutable builtins
 (define sequence?*
@@ -187,7 +195,7 @@
      (λ (val)
        (cond
          [(sequence? val) val]
-         [(disjoin vector? hash? b:set-mutable? b:set-weak? b:dict?)
+         [(disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?)
           (raise-blame-error
            blame val
            '(expected: "(and/c immutable? sequence?)" given: "~e, which is mutable") val)]

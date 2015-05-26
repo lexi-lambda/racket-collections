@@ -22,3 +22,8 @@
  (check-equal? (last (take 5 (in-naturals))) 4)
  (check-equal? (first (drop 2 (in-naturals))) 2)
  (check-equal? (reverse (extend '() (subsequence (in-naturals) 1 5))) '(1 2 3 4)))
+
+(test-case
+ "Sequence to string and bytestring conversions"
+ (check-equal? (sequence->string #(#\a #\b #\c)) "abc")
+ (check-equal? (sequence->bytes #(1 2 3)) #"\1\2\3"))

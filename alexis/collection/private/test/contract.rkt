@@ -31,13 +31,23 @@
                    #(1 2 a 3 4 5)
                    'pos 'neg)))
  (check-exn
-  #rx"expected: gen:sequence?"
-  (thunk (contract (sequenceof integer?)
+  #rx"hash\\? is not chaperoneable"
+  (thunk (contract (sequenceof integer? #:chaperone? #t)
                    (hash 1 2 3 4)
                    'pos 'neg)))
  (check-exn
+  #rx"string\\? is not chaperoneable"
+  (thunk (contract (sequenceof char? #:chaperone? #t)
+                   "abcd"
+                   'pos 'neg)))
+ (check-exn
+  #rx"bytes\\? is not chaperoneable"
+  (thunk (contract (sequenceof byte? #:chaperone? #t)
+                   #"abcd"
+                   'pos 'neg)))
+ (check-exn
   #rx"broke its own contract"
-  (thunk (first (contract (sequenceof integer? #:type 'impersonator)
+  (thunk (first (contract (sequenceof integer?)
                           (hash 1 2 3 4)
                           'pos 'neg))))
  (check-exn

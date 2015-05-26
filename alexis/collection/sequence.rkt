@@ -6,6 +6,7 @@
 (require
   alexis/collection/collection
   alexis/collection/countable
+  alexis/collection/contract
   alexis/util/match
   racket/generic
   racket/contract)
@@ -23,7 +24,9 @@
                      [start exact-nonnegative-integer?]
                      [end (start) (and/c exact-nonnegative-integer? (>=/c start))])
                     [result sequence?])]
-  [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]))
+  [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]
+  [sequence->string ((sequenceof char?) . -> . (and/c string? sequence?))]
+  [sequence->bytes ((sequenceof byte?) . -> . (and/c bytes? sequence?))]))
 
 ; like map, but strict, returns void, and is only for side-effects
 (define (for-each proc . seqs)
@@ -102,3 +105,9 @@
     (when (> (+ start len) (length seq))
       (raise-range-error 'subsequence* "sequence" "end " (+ start len) seq 0 (length seq))))
   (take len (drop start seq)))
+
+; some conversion functions for non-collections
+(define (sequence->string seq)
+  (string->immutable-string (list->string (sequence->list seq))))
+(define (sequence->bytes seq)
+  (bytes->immutable-bytes (list->bytes (sequence->list seq))))

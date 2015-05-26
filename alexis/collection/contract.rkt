@@ -34,7 +34,7 @@
 
 (define (check-sequenceof! ctc val blame)
   (unless (sequence? val)
-    (raise-blame-error blame val '(expected "a sequence" given: "~e") val)))
+    (raise-blame-error blame val '(expected: "a sequence" given: "~e") val)))
 
 (define ((sequenceof-first-order ctc) val)
   (sequence? val))
@@ -42,6 +42,11 @@
 (define (sequenceof-stronger? a b)
   (contract-stronger? (base-sequenceof-content a)
                       (base-sequenceof-content b)))
+
+(define (raise-unsupported-type-error blame val type)
+  (raise-blame-error
+   blame val
+   '(expected: "a chaperoneable sequence" given: "~e, and ~a is not chaperoneable") val type))
 
 (define ((ho-projection chaperone?) ctc)
   (let ([elem-ctc (base-sequenceof-content ctc)])
@@ -65,11 +70,20 @@
              (((contract-projection (set/c elem-ctc #:kind 'immutable)) passthrough-blame) val)]
             [(stream? val)
              (((contract-projection (stream/c elem-ctc)) passthrough-blame) val)]
-            ; force hashes to streams for the contract checking
+            ; force some values to streams for the contract checking
             ; (only allowed for non-chaperone contracts)
-            [(and (not chaperone?) ((conjoin hash? immutable?) val))
+            [((conjoin hash? immutable?) val)
+             (when chaperone? (raise-unsupported-type-error sequence-blame val 'hash?))
              (((contract-projection (stream/c elem-ctc)) passthrough-blame)
               (sequence->stream (in-hash-pairs val)))]
+            [((conjoin string? immutable?) val)
+             (when chaperone? (raise-unsupported-type-error sequence-blame val 'string?))
+             (((contract-projection (stream/c elem-ctc)) passthrough-blame)
+              (sequence->stream (in-string val)))]
+            [((conjoin bytes? immutable?) val)
+             (when chaperone? (raise-unsupported-type-error sequence-blame val 'bytes?))
+             (((contract-projection (stream/c elem-ctc)) passthrough-blame)
+              (sequence->stream (in-bytes val)))]
             [else
              (redirect-sequence
               val chaperone?
