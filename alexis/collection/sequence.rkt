@@ -1,5 +1,8 @@
 #lang racket/base
 
+;; This contains the implementation for derived sequence functions that have no need to access the
+;; internal representation of the underlying interfaces.
+
 (require
   alexis/collection/collection
   alexis/collection/countable
@@ -21,10 +24,12 @@
                      [end (start) (and/c exact-nonnegative-integer? (>=/c start))])
                     [result sequence?])]))
 
+; like map, but strict, returns void, and is only for side-effects
 (define (for-each proc . seqs)
   (let ([seq (apply map proc seqs)])
     (for ([el (in seq)]) (void))))
 
+; get the end of a finite sequence
 (define (last seq)
   (if (and (countable? seq)
            (known-finite? seq))
@@ -35,6 +40,7 @@
               (first seq)
               (loop next))))))
 
+; wrapper for lazy sections of a sequence
 (struct bounded-seq (source left)
   #:reflection-name 'lazy-sequence
   #:methods gen:countable
@@ -56,6 +62,7 @@
    (define/match* (reverse seq)
      (extend '() seq))])
 
+; lazily grabs the first n elements of seq
 (define (take n seq)
   (when (and (countable? seq)
              (known-finite? seq)
@@ -63,6 +70,7 @@
     (raise-range-error 'take "sequence" "length " n seq 0 (length seq)))
   (bounded-seq seq n))
 
+; strictly drops the first n elements of seq
 (define (drop n seq)
   (when (and (countable? seq)
              (known-finite? seq)
@@ -74,6 +82,7 @@
         seq
         (loop (sub1 n) (rest seq)))))
 
+; utility for composing take and drop
 (define (subsequence seq start end)
   (when (and (countable? seq)
              (known-finite? seq))

@@ -1,5 +1,8 @@
 #lang racket/base
 
+;; This contains the base implementations for gen:collection and gen:sequence, as well as some derived
+;; functions to operate on them.
+
 (require (for-syntax racket/base)
          racket/lazy-require
          racket/generic
@@ -19,6 +22,7 @@
               racket/dict))
          "countable.rkt")
 
+; lazily depend on random-access.rkt since it depends on this
 (lazy-require
  ["private/random-access.rkt" [sequence->random-access-sequence]])
 
@@ -97,9 +101,6 @@
   (for/fold ([str* b:empty-stream])
             ([e (b:in-stream str)])
     (b:stream-cons e str*)))
-
-(define (raise-mutability-error name bad-pos . args)
-  (b:apply raise-argument-error name "immutable?" bad-pos args))
 
 ;; generic interfaces
 ;; ---------------------------------------------------------------------------------------------------
@@ -309,13 +310,14 @@
 (define (ninth seq)   (nth seq 8))
 (define (tenth seq)   (nth seq 9))
 
+; simple abbreviation to avoid manually reversing the result list
 (define (sequence->list seq)
   (reverse (extend '() seq)))
 
 ; using ‘in’ outside of a for clause converts a sequence to a stream
 (define/contract in/proc
   (sequence?* . -> . b:stream?)
-  (let () ; this is done to get the compiler to statically infer the name as ‘in’, not ‘in-proc’
+  (let () ; this is done to get the compiler to statically infer the name as ‘in’, not ‘in/proc’
     (define (in seq)
       (if (empty? seq) b:empty-stream
           (b:stream-cons (first seq) (in/proc (rest seq)))))
