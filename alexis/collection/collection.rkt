@@ -308,15 +308,15 @@
      (loop (b:apply proc init* (b:map first seqs*)) (b:map rest seqs*))])))
 
 ; nth abbreviations
-(define (second seq)  (nth seq 1))
-(define (third seq)   (nth seq 2))
-(define (fourth seq)  (nth seq 3))
-(define (fifth seq)   (nth seq 4))
-(define (sixth seq)   (nth seq 5))
-(define (seventh seq) (nth seq 6))
-(define (eighth seq)  (nth seq 7))
-(define (ninth seq)   (nth seq 8))
-(define (tenth seq)   (nth seq 9))
+(define (second seq)  (nth* seq 1))
+(define (third seq)   (nth* seq 2))
+(define (fourth seq)  (nth* seq 3))
+(define (fifth seq)   (nth* seq 4))
+(define (sixth seq)   (nth* seq 5))
+(define (seventh seq) (nth* seq 6))
+(define (eighth seq)  (nth* seq 7))
+(define (ninth seq)   (nth* seq 8))
+(define (tenth seq)   (nth* seq 9))
 
 ; simple abbreviation to avoid manually reversing the result list
 (define (sequence->list seq)
