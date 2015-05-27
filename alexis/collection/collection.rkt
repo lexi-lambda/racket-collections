@@ -198,7 +198,7 @@
          [(disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?)
           (raise-blame-error
            blame val
-           '(expected: "(and/c immutable? sequence?)" given: "~e, which is mutable") val)]
+           '(expected: "sequence?, which must be immutable" given: "~e, which is mutable") val)]
          [else
           (raise-blame-error blame val '(expected: "sequence?" given: "~e") val)])))))
 
