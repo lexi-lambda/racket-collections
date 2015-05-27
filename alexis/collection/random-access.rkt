@@ -8,9 +8,9 @@
 
 (provide
  (contract-out
-  [sequence->random-access-sequence (sequence? . -> . sequence?)]))
+  [wrap-random-access-sequence (sequence? . -> . sequence?)]))
 
-(define (sequence->random-access-sequence seq)
+(define (wrap-random-access-sequence seq)
   (random-access-sequence seq 0))
 
 (struct random-access-sequence (sequence offset)

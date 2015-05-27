@@ -24,7 +24,7 @@
 
 ; lazily depend on random-access.rkt since it depends on this
 (lazy-require
- ["private/random-access.rkt" [sequence->random-access-sequence]])
+ ["random-access.rkt" [wrap-random-access-sequence]])
 
 (provide
  gen:collection collection? collection/c
@@ -153,8 +153,8 @@
     (define/generic -rest rest)
     (define/generic -reverse reverse)
     (define nth vector-ref)
-    (define rest (compose1 -rest sequence->random-access-sequence))
-    (define reverse (compose1 -reverse sequence->random-access-sequence))]
+    (define rest (compose1 -rest wrap-random-access-sequence))
+    (define reverse (compose1 -reverse wrap-random-access-sequence))]
    [b:stream?
     (define empty? b:stream-empty?)
     (define first b:stream-first)
