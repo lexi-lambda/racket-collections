@@ -17,6 +17,14 @@
                                       (unconstrained-domain-> any/c))])
                  #:rest [seqs (non-empty-listof sequence?)]
                  [result void?])]
+  [andmap (->i ([proc (seqs) (and/c (procedure-arity-includes/c (length seqs))
+                                    (unconstrained-domain-> any/c))])
+               #:rest [seqs (non-empty-listof sequence?)]
+               [result any/c])]
+  [ormap (->i ([proc (seqs) (and/c (procedure-arity-includes/c (length seqs))
+                                   (unconstrained-domain-> any/c))])
+              #:rest [seqs (non-empty-listof sequence?)]
+              [result any/c])]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
   [take (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [drop (exact-nonnegative-integer? sequence? . -> . sequence?)]
@@ -32,6 +40,12 @@
 (define (for-each proc . seqs)
   (let ([seq (apply map proc seqs)])
     (for ([el (in seq)]) (void))))
+
+; boolean folds for arbitrary sequences
+(define (andmap proc . seqs)
+  (apply foldl (λ (acc . vals) (and acc (apply proc vals))) #t seqs))
+(define (ormap proc . seqs)
+  (apply foldl (λ (acc . vals) (or acc (apply proc vals))) #f seqs))
 
 ; get the end of a finite sequence
 (define (last seq)

@@ -15,6 +15,15 @@
   "01234"))
 
 (test-case
+ "Logical fold abbreviations"
+ (check-equal? (andmap symbol? '(a 1 c d)) #f)
+ (check-equal? (andmap symbol? '(a b c d)) #t)
+ (check-equal? (andmap values '(a b c d)) 'd)
+ (check-equal? (ormap symbol? '(1 2 3 4)) #f)
+ (check-equal? (ormap symbol? '(1 a 3 4)) #t)
+ (check-equal? (ormap values '(#f a #f #f)) 'a))
+
+(test-case
  "Extra sequence operations"
  (check-equal? (last '(1 2 3 4)) 4)
  (check-equal? (last #(1 2 3 4)) 4)

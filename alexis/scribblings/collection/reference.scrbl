@@ -300,6 +300,24 @@ not last.
 Applies @racket[proc] over the @racket[seq] arguments just like @racket[map], but does so strictly and
 does not return a sequence. Instead, it simply returns @|void-const|.}
 
+@defproc[(andmap [proc procedure?] [seq sequence?] ...+) any/c]{
+Like @racket[map], applies @racket[proc] over the @racket[seq] arguments and collects the results
+together using @racket[and] like @racket[foldl].
+
+@(coll-examples
+  (andmap symbol? '(a 1 c d))
+  (andmap symbol? '(a b c d))
+  (andmap values '(a b c d)))}
+
+@defproc[(ormap [proc procedure?] [seq sequence?] ...+) any/c]{
+Like @racket[map], applies @racket[proc] over the @racket[seq] arguments and collects the results
+together using @racket[or] like @racket[foldl].
+
+@(coll-examples
+  (ormap symbol? '(1 2 3 4))
+  (ormap symbol? '(1 a 3 4))
+  (ormap values '(#f a #f #f)))}
+
 @deftogether[(@defproc[(second [coll collection?]) any/c]
               @defproc[(third [coll collection?]) any/c]
               @defproc[(fourth [coll collection?]) any/c]
