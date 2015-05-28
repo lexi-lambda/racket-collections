@@ -100,8 +100,9 @@ Repeatedly calls @racket[extend] for each @racket[extension] provided, in order.
 @defthing[gen:sequence any/c]{
 
 A @reftech{generic interface} that represents any ordered sequence of values. The
-@racket[gen:sequence] interface provides the @racket[empty?], @racket[first], @racket[rest], and
-@racket[nth] functions.
+@racket[gen:sequence] interface provides the @racket[empty?], @racket[first], @racket[rest],
+@racket[nth], @racket[set-nth], @racket[update-nth], @racket[reverse], and @racket[random-access?]
+functions.
 
 The following built-in datatypes have implementations for @racket[gen:sequence]:
 
@@ -167,6 +168,21 @@ This method is optional if an implementation of @racket[first] is provided.
   (nth '(1 2 3) 1)
   (nth #(1 2 3) 2))}
 
+@defproc[(set-nth [seq sequence?] [index exact-nonnegative-integer?] [value any/c]) sequence?]{
+Performs a functional update and returns a new sequence with the same elements as @racket[seq], except
+the element at @racket[index] is replaced with @racket[value].
+
+@(coll-examples
+  (set-nth '(1 2 3) 1 'b))}
+
+@defproc[(update-nth [seq sequence?] [index exact-nonnegative-integer?] [proc (any/c . -> . any/c)])
+         sequence?]{
+Like @racket[set-nth], but instead of supplying the value to be replaced directly, the @racket[proc]
+procedure is applied to the old value at @racket[index] to produce its replacement.
+
+@(coll-examples
+  (update-nth '(1 2 3) 1 (λ (n) (+ 10 n))))}
+
 @defproc[(reverse [seq sequence?]) sequence?]{
 Returns a new sequence with all the elements of @racket[seq], but in reverse order. If @racket[seq] is
 infinite, this may not terminate.
@@ -175,6 +191,14 @@ infinite, this may not terminate.
   (reverse '(1 2 3))
   (reverse #(1 2 3))
   (extend #() (reverse #(1 2 3))))}
+
+@defproc[(random-access? [seq sequence?]) boolean?]{
+Provides a way for sequence implementations to convey whether or not they are random access. If no
+implementation is provided, the default implementation always returns @racket[#f].
+
+This can be used as a heuristic to determine what sort of algorithm to use when operating over generic
+sequences. For example, if a sequence is determined to be random access, the default implementation
+for @racket[update-nth] will use @racket[nth] and @racket[set-nth]. Otherwise, it will lazily loop.}
 
 @subsubsection[#:tag "sequence-functions"]{Derived Functions}
 

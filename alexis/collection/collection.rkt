@@ -20,6 +20,8 @@
               racket/set
               racket/stream
               racket/dict))
+         (prefix-in
+          u: unstable/list)
          "countable.rkt")
 
 ; lazily depend on random-access.rkt since it depends on this
@@ -39,7 +41,11 @@
   [first ((and/c sequence?* (not/c empty?)) . -> . any)]
   [rest ((and/c sequence?* (not/c empty?)) . -> . any)]
   [rename nth* nth (sequence?* exact-nonnegative-integer? . -> . any)]
+  [rename set-nth* set-nth (sequence?* exact-nonnegative-integer? any/c . -> . sequence?)]
+  [rename update-nth* update-nth (sequence?* exact-nonnegative-integer? (any/c . -> . any/c)
+                                             . -> . sequence?)]
   [reverse (sequence?* . -> . sequence?*)]
+  [random-access? (sequence?* . -> . boolean?)]
   ; derived functions
   [extend* ([collection?] #:rest (listof sequence?*) . ->* . sequence?*)]
   [conj* ([collection?] #:rest any/c . ->* . sequence?*)]
@@ -77,6 +83,20 @@
     (raise-range-error 'nth "sequence" "" i seq 0 (sub1 (length seq))))
   (nth seq i))
 
+(define (set-nth* seq i v)
+  (when (and (countable? seq)
+             (known-finite? seq)
+             (>= i (length seq)))
+    (raise-range-error 'set-nth "sequence" "" i seq 0 (sub1 (length seq))))
+  (set-nth seq i v))
+
+(define (update-nth* seq i p)
+  (when (and (countable? seq)
+             (known-finite? seq)
+             (>= i (length seq)))
+    (raise-range-error 'update-nth "sequence" "" i seq 0 (sub1 (length seq))))
+  (update-nth seq i p))
+
 ;; fallbacks
 ;; ---------------------------------------------------------------------------------------------------
 
@@ -96,6 +116,24 @@
   (if (zero? index)
       (first seq)
       (nth (rest seq) (sub1 index))))
+
+(define (-set-nth seq index value)
+  (let loop ([seq seq]
+             [index index])
+    (if (zero? index)
+        (b:stream-cons value (in (rest seq)))
+        (b:stream-cons (first seq) (loop (rest seq) (sub1 index))))))
+
+(define (-update-nth seq index proc)
+  (cond
+    [(and (random-access? seq) (sequence-implements? seq 'nth 'set-nth))
+     (set-nth seq index (proc (nth seq index)))]
+    [else
+     (let loop ([seq seq]
+                [index index])
+       (if (zero? index)
+           (b:stream-cons (proc (first seq)) (in (rest seq)))
+           (b:stream-cons (first seq) (loop (rest seq) (sub1 index)))))]))
 
 (define (stream-reverse str)
   (for/fold ([str* b:empty-stream])
@@ -137,25 +175,40 @@
   (first sequence)
   (rest sequence)
   (nth sequence index)
+  (set-nth sequence index value)
+  (update-nth sequence index proc)
   (reverse sequence)
+  (random-access? sequence)
+  #:defined-predicate sequence-implements?
   #:fallbacks
   [(define empty? -empty?)
    (define first -first)
-   (define nth -nth)]
+   (define nth -nth)
+   (define set-nth -set-nth)
+   (define update-nth -update-nth)
+   (define (random-access? seq) #f)]
   #:derive-property prop:sequence (λ (s) (in s))
   #:fast-defaults
-  ([(disjoin pair? null?)
+  ([list?
     (define empty? b:null?)
     (define first b:car)
     (define rest b:cdr)
-    (define reverse b:reverse)])
+    (define reverse b:reverse)
+    (define nth list-ref)
+    (define set-nth u:list-set)
+    (define update-nth u:list-update)])
   #:defaults
   ([(conjoin vector? immutable?)
     (define/generic -rest rest)
     (define/generic -reverse reverse)
     (define nth vector-ref)
+    (define (set-nth vec i v)
+      (let ([copy (b:vector-copy vec)])
+        (vector-set! copy i v)
+        (vector->immutable-vector copy)))
     (define rest (compose1 -rest wrap-random-access-sequence))
-    (define reverse (compose1 -reverse wrap-random-access-sequence))]
+    (define reverse (compose1 -reverse wrap-random-access-sequence))
+    (define (random-access? v) #t)]
    [b:stream?
     (define empty? b:stream-empty?)
     (define first b:stream-first)
@@ -180,11 +233,13 @@
    [(conjoin string? immutable?)
     (define nth string-ref)
     (define rest (compose1 b:stream-rest b:sequence->stream in-string))
-    (define reverse (compose1 stream-reverse b:sequence->stream in-string))]
+    (define reverse (compose1 stream-reverse b:sequence->stream in-string))
+    (define (random-access? s) #t)]
    [(conjoin bytes? immutable?)
     (define nth bytes-ref)
     (define rest (compose1 b:stream-rest b:sequence->stream in-bytes))
-    (define reverse (compose1 stream-reverse b:sequence->stream in-bytes))]))
+    (define reverse (compose1 stream-reverse b:sequence->stream in-bytes))
+    (define (random-access? b) #t)]))
 
 ; create a custom flat contract to provide nice error messages for mutable builtins
 (define sequence?*
@@ -196,7 +251,7 @@
      (λ (val)
        (cond
          [(sequence? val) val]
-         [(disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?)
+         [((disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?) val)
           (raise-blame-error
            blame val
            '(expected: "sequence?, which must be immutable" given: "~e, which is mutable") val)]

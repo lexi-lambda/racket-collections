@@ -2,7 +2,7 @@
 
 (require
   rackunit
-  alexis/collection/collection
+  alexis/collection
   racket/set
   racket/stream
   racket/function
@@ -28,12 +28,23 @@
  (check-equal? (rest '(a b)) '(b))
  (check-equal? (first #(a b)) 'a)
  (check-equal? (first (rest #(a b))) 'b)
- (check-equal? (nth '(a b c) 1) 'b))
+ (check-equal? (nth '(a b c) 1) 'b)
+ (check-equal? (nth (stream 1 2 3) 1) 2))
+
+(test-case
+ "Functional sequence updates"
+ (check-equal? (set-nth '(a b) 0 'c) '(c b))
+ (check-equal? (update-nth '(1 2) 0 add1) '(2 2))
+ (check-equal? (sequence->list (set-nth (stream 'a 'b) 1 'c)) '(a c))
+ (check-equal? (sequence->list (update-nth (stream 1 2) 1 add1)) '(1 3))
+ (check-equal? (sequence->list (set-nth (rest #(a b c)) 1 'd)) '(b d))
+ (check-equal? (update-nth #(1 2 3) 1 add1) #(1 3 3)))
 
 (test-case
  "Sequence reversal"
  (check-equal? (reverse '(1 2 3)) '(3 2 1))
- (check-equal? (extend '() (reverse #(1 2 3))) '(1 2 3)))
+ (check-equal? (extend '() (reverse #(1 2 3))) '(1 2 3))
+ (check-equal? (sequence->list (reverse (stream 1 2 3 4))) '(4 3 2 1)))
 
 (test-case
  "Sequence-based application"
@@ -50,6 +61,7 @@
 (test-case
  "Sequence concatenation"
  (check-true (empty? (append)))
+ (check-equal? (length (append '(1 2) '(3 4))) 4)
  (check-equal? (extend #() (append '(1 2) '(3 4))) #(1 2 3 4))
  (check-equal? (extend #() (append #(1 2) (hash 3 4))) #(1 2 (3 . 4))))
 
@@ -83,7 +95,9 @@
  "Sequence for clause iteration"
  (check-pred procedure? in)
  (check-pred stream? (in #(1 2 3)))
- (check-equal? (for/list ([x (in #(1 2 3))]) (add1 x)) '(2 3 4)))
+ (check-equal? (sequence->list (in #(1 2 3))) '(1 2 3))
+ (check-equal? (for/list ([x (in #(1 2 3))]) (add1 x)) '(2 3 4))
+ (check-exn exn:fail:contract? (thunk (for ([i (in 'not-a-sequence)]) (void)))))
 
 (test-case
  "Derived for/sequence loops"
@@ -97,4 +111,11 @@
  "Special sequence errors on mutable builtins"
  (check-exn #rx"which is mutable" (thunk (empty? (vector))))
  (check-exn #rx"which is mutable" (thunk (empty? (make-hash))))
- (check-exn #rx"which is mutable" (thunk (empty? (mutable-set)))))
+ (check-exn #rx"which is mutable" (thunk (empty? (mutable-set))))
+ (check-exn #rx"expected: sequence\\?\n" (thunk (empty? 'not-a-sequence))))
+
+(test-case
+ "Good error messages for finite sequences"
+ (check-exn #rx"index is out of range" (thunk (nth #(1 2 3 4) 4)))
+ (check-exn #rx"index is out of range" (thunk (set-nth #(1 2 3 4) 4 'x)))
+ (check-exn #rx"index is out of range" (thunk (update-nth #(1 2 3 4) 4 void))))

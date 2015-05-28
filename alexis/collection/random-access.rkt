@@ -8,7 +8,7 @@
 
 (provide
  (contract-out
-  [wrap-random-access-sequence (sequence? . -> . sequence?)]))
+  [wrap-random-access-sequence ((and/c sequence? random-access?) . -> . sequence?)]))
 
 (define (wrap-random-access-sequence seq)
   (random-access-sequence seq 0))
@@ -21,7 +21,8 @@
      (- (-length seq) i))]
   ; we get first and empty? for free
   #:methods gen:sequence
-  [(define/generic -nth nth)
+  [(define (random-access? s) #t)
+   (define/generic -nth nth)
    ; just increment the offset for rest
    (define/match* (rest (random-access-sequence seq i))
      (random-access-sequence seq (add1 i)))
@@ -41,7 +42,8 @@
      (-length seq))]
   ; we get first and empty? for free
   #:methods gen:sequence
-  [(define/generic -nth nth)
+  [(define (random-access? s) #t)
+   (define/generic -nth nth)
    ; just wrap the whole thing in a random access iterator for iteration
    (define (rest rev-seq)
      (random-access-sequence rev-seq 1))
