@@ -142,6 +142,7 @@
   [(define empty? -empty?)
    (define first -first)
    (define nth -nth)]
+  #:derive-property prop:sequence (λ (s) (in s))
   #:fast-defaults
   ([(disjoin pair? null?)
     (define empty? b:null?)
