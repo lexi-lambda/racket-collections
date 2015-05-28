@@ -26,7 +26,7 @@
 
 ; lazily depend on random-access.rkt since it depends on this
 (lazy-require
- ["random-access.rkt" [wrap-random-access-sequence]])
+ ["private/random-access.rkt" [wrap-random-access-sequence]])
 
 (provide
  gen:collection collection? collection/c
@@ -112,6 +112,16 @@
 (define (-first seq)
   (nth seq 0))
 
+(define (-rest seq)
+  (if (and (random-access? seq) (sequence-implements? seq 'nth))
+      (rest (wrap-random-access-sequence seq))
+      (raise-support-error 'rest seq)))
+
+(define (-reverse seq)
+  (if (and (random-access? seq) (sequence-implements? seq 'nth))
+      (reverse (wrap-random-access-sequence seq))
+      (raise-support-error 'rest seq)))
+
 (define (-nth seq index)
   (if (zero? index)
       (first seq)
@@ -183,9 +193,11 @@
   #:fallbacks
   [(define empty? -empty?)
    (define first -first)
+   (define rest -rest)
    (define nth -nth)
    (define set-nth -set-nth)
    (define update-nth -update-nth)
+   (define reverse -reverse)
    (define (random-access? seq) #f)]
   #:derive-property prop:sequence (λ (s) (in s))
   #:fast-defaults
@@ -206,8 +218,6 @@
       (let ([copy (b:vector-copy vec)])
         (vector-set! copy i v)
         (vector->immutable-vector copy)))
-    (define rest (compose1 -rest wrap-random-access-sequence))
-    (define reverse (compose1 -reverse wrap-random-access-sequence))
     (define (random-access? v) #t)]
    [b:stream?
     (define empty? b:stream-empty?)
