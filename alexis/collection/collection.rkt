@@ -343,35 +343,55 @@
             (filter pred tail)))))
 
 ; lazy map
-(define (map proc . seqs)
-  (let loop ([seqs* seqs])
-    (cond
-    [(andmap empty? seqs*)
-     b:empty-stream]
-    [(ormap empty? seqs*)
-     (raise-arguments-error
-      'map "all sequences must have the same length"
-      "proc" proc
-      "sequences" seqs)]
-    [else
-     (b:stream-cons (b:apply proc (b:map first seqs*))
-                    (loop (b:map rest seqs*)))])))
+(define map
+  (case-lambda
+    [(proc seq)
+     (let loop ([seq* seq])
+       (cond
+         [(empty? seq*)
+          b:empty-stream]
+         [else
+          (b:stream-cons (proc (first seq*))
+                         (loop (rest seq*)))]))]
+    [(proc . seqs)
+     (let loop ([seqs* seqs])
+       (cond
+         [(andmap empty? seqs*)
+          b:empty-stream]
+         [(ormap empty? seqs*)
+          (raise-arguments-error
+           'map "all sequences must have the same length"
+           "proc" proc
+           "sequences" seqs)]
+         [else
+          (b:stream-cons (b:apply proc (b:map first seqs*))
+                         (loop (b:map rest seqs*)))]))]))
 
 ; strict fold
-(define (foldl proc init . seqs)
-  (let loop ([init* init]
-             [seqs* seqs])
-    (cond
-    [(andmap empty? seqs*)
-     init*]
-    [(ormap empty? seqs*)
-     (raise-arguments-error
-      'foldl "all sequences must have the same length"
-      "proc" proc
-      "init" init
-      "sequences" seqs)]
-    [else
-     (loop (b:apply proc init* (b:map first seqs*)) (b:map rest seqs*))])))
+(define foldl
+  (case-lambda
+    [(proc init seq)
+     (let loop ([init* init]
+                [seq* seq])
+       (cond
+         [(empty? seq*)
+          init*]
+         [else
+          (loop (proc init* (first seq*)) (rest seq*))]))]
+    [(proc init . seqs)
+     (let loop ([init* init]
+                [seqs* seqs])
+       (cond
+         [(andmap empty? seqs*)
+          init*]
+         [(ormap empty? seqs*)
+          (raise-arguments-error
+           'foldl "all sequences must have the same length"
+           "proc" proc
+           "init" init
+           "sequences" seqs)]
+         [else
+          (loop (b:apply proc init* (b:map first seqs*)) (b:map rest seqs*))]))]))
 
 ; nth abbreviations
 (define (second seq)  (nth* seq 1))
