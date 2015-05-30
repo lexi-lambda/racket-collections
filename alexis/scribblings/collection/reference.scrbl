@@ -231,6 +231,13 @@ better performance, especially for homogenous sequence types.
   (sequence->list (append '(1 2) '(3 4)))
   (sequence->list (append (hash 'a 'b) (set 'c 'd))))}
 
+@defproc[(repeat [val any/c]) sequence?]{
+Creates an infinite sequence simply containing @racket[val] repeated infinitely.
+
+@(coll-examples
+  (repeat 0)
+  (extend #() (take 5 (repeat 0))))}
+
 @defproc[(take [n exact-nonnegative-integer?] [seq sequence?]) sequence?]{
 Returns a new @emph{lazy sequence} that contains the first @racket[n] elements of @racket[seq].
 

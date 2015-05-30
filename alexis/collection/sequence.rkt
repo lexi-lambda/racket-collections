@@ -26,6 +26,7 @@
               #:rest [seqs (non-empty-listof sequence?)]
               [result any/c])]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
+  [repeat (any/c . -> . sequence?)]
   [take (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [drop (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [subsequence (->i ([seq sequence?]
@@ -57,6 +58,25 @@
           (if (empty? next)
               (first seq)
               (loop next))))))
+
+; wrapper for ‘repeat’
+(struct single-value-seq (val)
+  #:reflection-name 'infinite-sequence
+  #:methods gen:custom-write
+  [(define (write-proc s out mode)
+     (fprintf out "#<repeated-sequence:~a>" (single-value-seq-val s)))]
+  #:methods gen:sequence
+  [(define (empty? s) #f)
+   (define (first s) (single-value-seq-val s))
+   ; return a new value to unwrap any contracts so they don't build up
+   (define (rest s) (single-value-seq (single-value-seq-val s)))
+   (define (nth s i) (first s))
+   (define (reverse s) (rest s))
+   (define (random-access? s) #t)])
+
+; infinite, single-valued sequence constructor
+(define (repeat v)
+  (single-value-seq v))
 
 ; wrapper for lazy sections of a sequence
 (struct bounded-seq (source left)
