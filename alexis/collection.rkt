@@ -5,7 +5,8 @@
   alexis/collection/sequence
   alexis/collection/indexable
   alexis/collection/countable
-  alexis/collection/contract)
+  alexis/collection/contract
+  alexis/collection/match)
 
 (provide
  (all-from-out
@@ -13,4 +14,5 @@
   alexis/collection/sequence
   alexis/collection/indexable
   alexis/collection/countable
-  alexis/collection/contract))
+  alexis/collection/contract
+  alexis/collection/match))

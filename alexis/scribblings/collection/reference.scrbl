@@ -14,7 +14,8 @@
               racket/generic
               racket/contract
               racket/stream
-              racket/string)
+              racket/string
+              racket/match)
    scribble/eval
    "../private/utils.rkt")
 
@@ -483,6 +484,28 @@ A predicate that identifies if @racket[v] is @tech{indexable}.}
 @defproc[(ref [collection indexable?] [index any/c]) any]{
 
 Returns the value associated with the provided @racket[index] for the given @racket[collection].}
+
+@subsection{Using sequences with @racket[match]}
+
+@(define lit-... (racket ...))
+@defform[(sequence svp ...)
+         #:grammar
+         [(svp pat (code:line pat ooo))
+          (ooo #,lit-...)]]{
+Similar to @tt{list} patterns for @racket[match], but matches any type of sequence and does not
+support @tt{..k} splicing patterns.
+
+If @racket[pat ...] splicing patterns are used in a non-final position, the sequence will be
+forced, and if the sequence is not finite, the match will not terminate. Otherwise, the other elements
+of the sequence not matched will not be forced, including a possible lazy tail.
+
+@(coll-examples
+  (match (stream 1 2 3 4)
+    [(sequence a b c d) c])
+  (match (stream 1 2 3 4)
+    [(sequence a b ... c) b])
+  (match (stream 1 2 3 4)
+    [(sequence a b ...) b]))}
 
 @subsection{Contracts on Collections}
 
