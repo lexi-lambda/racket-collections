@@ -27,6 +27,7 @@
               [result any/c])]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
   [repeat (any/c . -> . sequence?)]
+  [cycle ((and/c sequence? (not/c empty?)) . -> . sequence?)]
   [take (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [drop (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [subsequence (->i ([seq sequence?]
@@ -77,6 +78,25 @@
 ; infinite, single-valued sequence constructor
 (define (repeat v)
   (single-value-seq v))
+
+; wrapper for ‘cycle’
+(struct cycled-seq (head current)
+  #:reflection-name 'cycled-sequence
+  #:methods gen:sequence
+  [(define/generic -empty? empty?)
+   (define/generic -first first)
+   (define/generic -rest rest)
+   (define (empty? s) #f)
+   (define (first s) (-first (cycled-seq-current s)))
+   (define/match* (rest (cycled-seq head current))
+     (define current* (-rest current))
+     (if (-empty? current*)
+         (cycled-seq head head)
+         (cycled-seq head current*)))])
+
+; infinite, multi-valued sequence constructor
+(define (cycle s)
+  (cycled-seq s s))
 
 ; wrapper for lazy sections of a sequence
 (struct bounded-seq (source left)

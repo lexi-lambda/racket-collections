@@ -33,6 +33,13 @@
  (check-equal? (reverse (extend '() (subsequence (in-naturals) 1 5))) '(1 2 3 4)))
 
 (test-case
+ "Infinite sequence constructors"
+ (check-equal? (first (repeat 'foo)) 'foo)
+ (check-equal? (nth (repeat 'foo) 10000) 'foo)
+ (check-exn exn:fail:contract? (thunk (cycle '())))
+ (check-equal? (sequence->list (take 6 (cycle '(1 2 3)))) '(1 2 3 1 2 3)))
+
+(test-case
  "Sequence to string and bytestring conversions"
  (check-equal? (sequence->string #(#\a #\b #\c)) "abc")
  (check-equal? (sequence->bytes #(1 2 3)) #"\1\2\3"))

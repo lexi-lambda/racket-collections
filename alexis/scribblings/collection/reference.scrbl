@@ -238,6 +238,13 @@ Creates an infinite sequence simply containing @racket[val] repeated infinitely.
   (repeat 0)
   (extend #() (take 5 (repeat 0))))}
 
+@defproc[(cycle [seq (and/c sequence? (not/c empty?))]) sequence?]{
+Creates an infinite sequence containing the values in @racket[seq] repeated infinitely.
+
+@(coll-examples
+  (nth (cycle '(1 2 3)) 10)
+  (sequence->list (take 5 (cycle '(a b)))))}
+
 @defproc[(take [n exact-nonnegative-integer?] [seq sequence?]) sequence?]{
 Returns a new @emph{lazy sequence} that contains the first @racket[n] elements of @racket[seq].
 
