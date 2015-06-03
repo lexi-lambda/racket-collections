@@ -50,3 +50,11 @@
  (check-equal? (sequence->list (flatten '((1 2) 3 (((4)))))) '(1 2 3 4))
  (check-equal? (nth (flatten (repeat (repeat '(1)))) 1000) 1)
  (check-equal? (second (append-map values (repeat (repeat 1)))) 1))
+
+(test-case
+ "Built-in infinite sequences"
+ (check-equal?
+  (parameterize ([current-pseudo-random-generator (make-pseudo-random-generator)])
+    (random-seed 0)
+    (sequence->list (take 10 (randoms 10 (current-pseudo-random-generator)))))
+  '(8 6 2 4 8 4 5 3 2 6)))

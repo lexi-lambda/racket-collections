@@ -46,7 +46,10 @@
   [flatten (sequence? . -> . sequence?)]
   [generate-sequence (generator? . -> . sequence?)]
   [sequence->string ((sequenceof char?) . -> . (and/c string? sequence?))]
-  [sequence->bytes ((sequenceof byte?) . -> . (and/c bytes? sequence?))]))
+  [sequence->bytes ((sequenceof byte?) . -> . (and/c bytes? sequence?))]
+  [randoms (case-> (-> sequence?)
+                   (-> (or/c (integer-in 1 4294967087) pseudo-random-generator?) sequence?)
+                   (-> (integer-in 1 4294967087) pseudo-random-generator? sequence?))]))
 
 ; like map, but strict, returns void, and is only for side-effects
 (define for-each
@@ -247,3 +250,19 @@
   (string->immutable-string (list->string (sequence->list seq))))
 (define (sequence->bytes seq)
   (bytes->immutable-bytes (list->bytes (sequence->list seq))))
+
+; infinite sequence of random numbers
+(define (randoms [k #f] [gen #f])
+  (define integral? (integer? k))
+  ; if ‘k’ isn't provided as an integer, it's actually the generator due to how the
+  ; arity of this function works
+  (define gen* (if integral? gen k))
+  (define random-generator (or gen* (make-pseudo-random-generator)))
+  (generate-sequence
+   (generator ()
+     (let loop ()
+       (yield
+        (if integral?
+            (random k random-generator)
+            (random random-generator)))
+       (loop)))))

@@ -258,6 +258,20 @@ Creates an infinite sequence containing the values in @racket[seq] repeated infi
   (nth (cycle '(1 2 3)) 10)
   (sequence->list (take 5 (cycle '(a b)))))}
 
+@defproc*[([(randoms [rand-gen pseudo-random-generator? (make-pseudo-random-generator)])
+            (sequenceof (and/c real? inexact? (>/c 0) (</c 1)))]
+           [(randoms [k (integer-in 1 4294967087)]
+                     [rand-gen pseudo-random-generator? (make-pseudo-random-generator)])
+            (sequenceof exact-nonnegative-integer?)])]{
+Creates an infinite sequence composed of random values produced via calls to @racket[random] using
+@racket[rand-gen] as the random number generator. Unlike @racket[random], @racket[randoms] does not
+use @racket[current-pseudo-random-generator] if @racket[rand-gen] is not provided. Instead, it will
+create a new, self-contained generator.
+
+@(coll-examples
+  (sequence->list (take 10 (randoms)))
+  (sequence->list (take 10 (randoms 20))))}
+
 @defproc[(take [n exact-nonnegative-integer?] [seq sequence?]) sequence?]{
 Returns a new @emph{lazy sequence} that contains the first @racket[n] elements of @racket[seq].
 
