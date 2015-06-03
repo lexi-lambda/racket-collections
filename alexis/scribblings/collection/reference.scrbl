@@ -233,8 +233,8 @@ better performance, especially for homogenous sequence types.
   (sequence->list (append '(1 2) '(3 4)))
   (sequence->list (append (hash 'a 'b) (set 'c 'd))))}
 
-@defproc[(append* [seqs (sequenceof sequence?)]) sequence?]{
-Functionally identical to @racket[(apply append seqs)] except that using @racket[append*] can
+@defproc[(append* [seq sequence?] ... [seqs (sequenceof sequence?)]) sequence?]{
+Functionally identical to @racket[(apply append seq ... seqs)] except that using @racket[append*] can
 potentially be lazier since the @racket[seqs] sequence does not need to be forced. Consequently,
 @racket[append*] can concatenate an infinite number of sequences if @racket[seqs] is an infinite lazy
 sequence, but @racket[append] cannot.

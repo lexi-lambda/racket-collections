@@ -4,6 +4,7 @@
 ;; internal representation of the underlying interfaces.
 
 (require
+  (prefix-in b: racket/list)
   alexis/collection/collection
   alexis/collection/countable
   alexis/collection/contract
@@ -41,7 +42,7 @@
                      [end (start) (and/c exact-nonnegative-integer? (>=/c start))])
                     [result sequence?])]
   [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]
-  [append* ((sequenceof sequence?) . -> . sequence?)]
+  [append* ([] #:rest (non-empty-listof sequence?) . ->* . sequence?)]
   [flatten (sequence? . -> . sequence?)]
   [generate-sequence (generator? . -> . sequence?)]
   [sequence->string ((sequenceof char?) . -> . (and/c string? sequence?))]
@@ -201,10 +202,21 @@
            (loop tail)))))))
 
 ; like (apply append seqs) but can be lazier
-(define (append* seqs)
-  (for*/sequence ([seq (in seqs)]
-                  [e (in seq)])
-    e))
+(define append*
+  (case-lambda
+    ; provide a fast case when only one argument is supplied
+    [(seqs)
+     (for*/sequence ([seq (in seqs)]
+                     [e (in seq)])
+       e)]
+    ; use ‘append’ otherwise
+    [seqs
+     (define-values (init last) (b:split-at-right seqs 1))
+     (append
+      (apply append init)
+      (for*/sequence ([seq (in (car last))]
+                      [e (in seq)])
+        e))]))
 
 ; like (apply append (map proc . seqs)) but lazier and less expensive
 (define (append-map proc . seqs)
