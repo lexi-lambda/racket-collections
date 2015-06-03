@@ -15,7 +15,8 @@
               racket/contract
               racket/stream
               racket/string
-              racket/match)
+              racket/match
+              racket/generator)
    scribble/eval
    "../private/utils.rkt")
 
@@ -220,7 +221,7 @@ only lists. Just like in @racket[base:apply], @racket[#:<kw>] stands for any key
   (apply + (set 1 1 1))
   (apply string-replace #:all? #f "foo" #("o" "a")))}
 
-@defproc[(append [seq sequence?] ...) any/c]{
+@defproc[(append [seq sequence?] ...) sequence?]{
 Returns a new @emph{lazy sequence} with all the values of the @racket[seq] arguments concatenated, in
 order.
 
@@ -231,6 +232,17 @@ better performance, especially for homogenous sequence types.
   (append '(1 2) '(3 4))
   (sequence->list (append '(1 2) '(3 4)))
   (sequence->list (append (hash 'a 'b) (set 'c 'd))))}
+
+@defproc[(append* [seqs (sequenceof sequence?)]) sequence?]{
+Functionally identical to @racket[(apply append seqs)] except that using @racket[append*] can
+potentially be lazier since the @racket[seqs] sequence does not need to be forced. Consequently,
+@racket[append*] can concatenate an infinite number of sequences if @racket[seqs] is an infinite lazy
+sequence, but @racket[append] cannot.
+
+@(coll-examples
+  (append* (stream '(1 2) '(3 4)))
+  (sequence->list (append* (stream '(1 2) '(3 4))))
+  (sequence->list (append* (stream (hash 'a 'b) (set 'c 'd)))))}
 
 @defproc[(repeat [val any/c]) sequence?]{
 Creates an infinite sequence simply containing @racket[val] repeated infinitely.
@@ -333,6 +345,21 @@ together using @racket[or] like @racket[foldl].
   (ormap symbol? '(1 a 3 4))
   (ormap values '(#f a #f #f)))}
 
+@defproc[(flatten [s sequence?]) sequence?]{
+Flattens a potentially nested sequence into a sequence of flat values.
+
+@(coll-examples
+  (flatten '((a) b (c (d) e) ()))
+  (sequence->list (flatten '((a) b (c (d) e) ())))
+  (sequence->list (flatten '((((()()()))(((()))())))))
+  (sixth (flatten (repeat 1))))}
+
+@defproc[(append-map [f procedure?] [seq sequence?] ...+) sequence?]{
+Like @racket[(apply append (map f seq ...))].
+
+@(coll-examples
+  (sequence->list (append-map values '((1) (2) (3)))))}
+
 @deftogether[(@defproc[(second [coll collection?]) any/c]
               @defproc[(third [coll collection?]) any/c]
               @defproc[(fourth [coll collection?]) any/c]
@@ -392,6 +419,18 @@ Converts @racket[seq], which must contain only @reftech{characters}, to an immut
 @defproc[(sequence->bytes [seq (sequenceof byte?)]) (and/c bytes? sequence?)]{
 Converts @racket[seq], which must contain only
 @tech[#:doc '(lib "scribblings/guide/guide.scrbl")]{bytes}, to an immutable @reftech{byte string}.}
+
+@defproc[(generate-sequence [gen generator?]) sequence?]{
+Creates a new lazy sequence by repeatedly calling @racket[gen] until @racket[generator-state] returns
+@racket['done]. The first element of the sequence is evaluated eagerly, but the remaining sequence is
+lazy.
+
+@(coll-examples
+  (sequence->list
+   (take 5 (generate-sequence (generator ()
+                                (let loop ([n 0])
+                                  (yield (* n n))
+                                  (loop (add1 (* n n)))))))))}
 
 @section{General-Purpose Interfaces}
 

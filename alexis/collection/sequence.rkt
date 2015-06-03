@@ -9,7 +9,9 @@
   alexis/collection/contract
   alexis/util/match
   racket/generic
-  racket/contract)
+  racket/contract
+  racket/stream
+  racket/generator)
 
 (provide
  (contract-out
@@ -25,6 +27,10 @@
                                    (unconstrained-domain-> any/c))])
               #:rest [seqs (non-empty-listof sequence?)]
               [result any/c])]
+  [append-map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (length seqs))
+                                        (unconstrained-domain-> sequence?))])
+                   #:rest [seqs (non-empty-listof sequence?)]
+                   [result sequence?])]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
   [repeat (any/c . -> . sequence?)]
   [cycle ((and/c sequence? (not/c empty?)) . -> . sequence?)]
@@ -35,13 +41,34 @@
                      [end (start) (and/c exact-nonnegative-integer? (>=/c start))])
                     [result sequence?])]
   [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]
+  [append* ((sequenceof sequence?) . -> . sequence?)]
+  [flatten (sequence? . -> . sequence?)]
+  [generate-sequence (generator? . -> . sequence?)]
   [sequence->string ((sequenceof char?) . -> . (and/c string? sequence?))]
   [sequence->bytes ((sequenceof byte?) . -> . (and/c bytes? sequence?))]))
 
 ; like map, but strict, returns void, and is only for side-effects
-(define (for-each proc . seqs)
-  (let ([seq (apply map proc seqs)])
-    (for ([el (in seq)]) (void))))
+(define for-each
+  (case-lambda
+    [(proc seq)
+     (let loop ([seq* seq])
+       (cond
+         [(empty? seq*) (void)]
+         [else
+          (proc (first seq*))
+          (loop (rest seq*))]))]
+    [(proc . seqs)
+     (let loop ([seqs* seqs])
+       (cond
+         [(andmap empty? seqs*) (void)]
+         [(ormap empty? seqs*)
+          (raise-arguments-error
+           'for-each "all sequences must have the same length"
+           "proc" proc
+           "sequences" seqs)]
+         [else
+          (apply proc (map first seqs*))
+          (loop (map rest seqs*))]))]))
 
 ; boolean folds for arbitrary sequences
 (define (andmap proc . seqs)
@@ -159,6 +186,49 @@
     (when (> (+ start len) (length seq))
       (raise-range-error 'subsequence* "sequence" "end " (+ start len) seq 0 (length seq))))
   (take len (drop start seq)))
+
+; lazily flatten a sequence
+(define (flatten seq)
+  (generate-sequence
+   (generator ()
+     (let loop ([seq seq])
+       (unless (empty? seq)
+         (let ([head (first seq)]
+               [tail (rest seq)])
+           (if (sequence? head)
+               (loop head)
+               (yield head))
+           (loop tail)))))))
+
+; like (apply append seqs) but can be lazier
+(define (append* seqs)
+  (for*/sequence ([seq (in seqs)]
+                  [e (in seq)])
+    e))
+
+; like (apply append (map proc . seqs)) but lazier and less expensive
+(define (append-map proc . seqs)
+  (generate-sequence
+   (generator ()
+     (let loop ([seqs* seqs])
+       (cond
+         [(andmap empty? seqs*) (void)]
+         [(ormap empty? seqs*)
+          (raise-arguments-error
+           'append-map "all sequences must have the same length"
+           "proc" proc
+           "sequences" seqs)]
+         [else
+          (for-each yield (apply proc (map first seqs*)))
+          (loop (map rest seqs*))])))))
+
+; creates a sequence by lazily pulling values from a generator
+(define (generate-sequence g)
+  (let loop ()
+    (define v (g))
+    (if (eq? 'done (generator-state g))
+        empty-stream
+        (stream-cons v (loop)))))
 
 ; some conversion functions for non-collections
 (define (sequence->string seq)

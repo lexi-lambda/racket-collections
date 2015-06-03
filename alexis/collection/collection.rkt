@@ -271,24 +271,6 @@
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------
 
-; two sequences concatenated together in order, for laziness
-(struct concatenated-sequence (a b)
-  #:reflection-name 'lazy-sequence
-  #:methods gen:countable
-  [(define/generic -length length)
-   (define/match* (length (concatenated-sequence a b))
-     (+ (-length a) (-length b)))]
-  #:methods gen:sequence
-  [(define/generic -empty? empty?)
-   (define/generic -first first)
-   (define/generic -rest rest)
-   (define/match* (empty? (concatenated-sequence a b))
-     (and (-empty? a) (-empty? b)))
-   (define/match* (first (concatenated-sequence a b))
-     (if (-empty? a) (-first b) (-first a)))
-   (define/match* (rest (concatenated-sequence a b))
-     (if (-empty? a) (-rest b) (concatenated-sequence (-rest a) b)))])
-
 ; validates the arguments passed to apply and converts the final argument to a list from a sequence
 (define (parse-apply-arguments args)
   (define fn (first args))
@@ -322,8 +304,9 @@
 
 ; lazily concatenates sequences
 (define (append . seqs)
-  (if (b:empty? seqs) b:empty-stream
-      (foldl concatenated-sequence (b:first seqs) (b:rest seqs))))
+  (for*/sequence ([seq (in-list seqs)]
+                  [e (in seq)])
+    e))
 
 ; conj over multiple items
 (define (conj* seq . items)

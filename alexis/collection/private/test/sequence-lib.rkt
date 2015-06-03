@@ -43,3 +43,10 @@
  "Sequence to string and bytestring conversions"
  (check-equal? (sequence->string #(#\a #\b #\c)) "abc")
  (check-equal? (sequence->bytes #(1 2 3)) #"\1\2\3"))
+
+(test-case
+ "Flattening operations"
+ (check-true (empty? (flatten '((((())))))))
+ (check-equal? (sequence->list (flatten '((1 2) 3 (((4)))))) '(1 2 3 4))
+ (check-equal? (nth (flatten (repeat (repeat '(1)))) 1000) 1)
+ (check-equal? (second (append-map values (repeat (repeat 1)))) 1))
