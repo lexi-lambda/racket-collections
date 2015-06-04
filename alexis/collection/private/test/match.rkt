@@ -6,6 +6,11 @@
   racket/match)
 
 (test-case
+ "Empty matches"
+ (check-equal? (match '(1 2 3) [(sequence) #t] [_ #f]) #f)
+ (check-equal? (match '() [(sequence) #t] [_ #f]) #t))
+
+(test-case
  "Finite matches"
  (check-equal? (match #(1 2 3 4) [(sequence a b c d) c]) 3)
  (check-equal? (match #(1 2 3 4) [(sequence 2 b c d) c] [_ #f]) #f)

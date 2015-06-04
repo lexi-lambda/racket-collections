@@ -20,6 +20,9 @@
       (pattern pat:expr
                #:attr multi? #f))
     (syntax-parse stx
+      ; if the arg list is empty, just expand to predicates
+      [(_) #'(and (? sequence?) (? empty?))]
+      ; otherwise do actual pattern matching
       [(_ svp:svp ...)
        (define multi? (attribute svp.multi?))
        (define last-multi? (last multi?))
