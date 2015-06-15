@@ -15,6 +15,7 @@
   racket/generator)
 
 (provide
+ (rename-out [in-naturals naturals])
  (contract-out
   [for-each (->i ([proc (seqs) (and/c (procedure-arity-includes/c (length seqs))
                                       (unconstrained-domain-> any/c))])

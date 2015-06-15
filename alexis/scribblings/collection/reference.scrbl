@@ -277,6 +277,13 @@ Creates an infinite sequence containing the values in @racket[seq] repeated infi
   (nth (cycle '(1 2 3)) 10)
   (sequence->list (take 5 (cycle '(a b)))))}
 
+@defproc[(naturals [start exact-nonnegative-integer? 0]) stream?]{
+The same binding as @racket[in-naturals] but provided under a different name.
+
+@(coll-examples
+  (nth (naturals) 20)
+  (nth (naturals 5) 20))}
+
 @defproc*[([(randoms [rand-gen pseudo-random-generator? (make-pseudo-random-generator)])
             (sequenceof (and/c real? inexact? (>/c 0) (</c 1)))]
            [(randoms [k (integer-in 1 4294967087)]
