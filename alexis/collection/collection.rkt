@@ -9,6 +9,7 @@
          racket/contract
          racket/generator
          racket/function
+         racket/match
          unstable/function
          alexis/util/match
          alexis/util/renamed
@@ -22,7 +23,8 @@
               racket/dict))
          (prefix-in
           u: unstable/list)
-         "countable.rkt")
+         "countable.rkt"
+         "private/util.rkt")
 
 ; lazily depend on random-access.rkt since it depends on this
 (lazy-require
@@ -41,14 +43,21 @@
   [first ((and/c sequence?* (not/c empty?)) . -> . any)]
   [rest ((and/c sequence?* (not/c empty?)) . -> . any)]
   [rename nth* nth (sequence?* exact-nonnegative-integer? . -> . any)]
-  [rename set-nth* set-nth (sequence?* exact-nonnegative-integer? any/c . -> . sequence?)]
+  [rename set-nth* set-nth (sequence?* exact-nonnegative-integer? any/c . -> . sequence?*)]
   [rename update-nth* update-nth (sequence?* exact-nonnegative-integer? (any/c . -> . any/c)
-                                             . -> . sequence?)]
+                                             . -> . sequence?*)]
   [reverse (sequence?* . -> . sequence?*)]
   [random-access? (sequence?* . -> . boolean?)]
   ; derived functions
   [extend* ([collection?] #:rest (listof sequence?*) . ->* . sequence?*)]
   [conj* ([collection?] #:rest any/c . ->* . sequence?*)]
+  [rename set-nth** set-nth* ([sequence?*]
+                              #:rest (tuple-listof exact-nonnegative-integer? any/c)
+                              . ->* . sequence?*)]
+  [rename update-nth** update-nth* ([sequence?*]
+                                    #:rest (tuple-listof exact-nonnegative-integer?
+                                                         (any/c . -> . any/c))
+                                    . ->* . sequence?*)]
   [append ([] #:rest (listof sequence?*) . ->* . sequence?*)]
   [filter ((any/c . -> . any/c) sequence?* . -> . sequence?*)]
   [map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (b:length seqs))
@@ -315,6 +324,18 @@
 ; extend over multiple sequences
 (define (extend* seq . seqs)
   (foldl extend seq seqs))
+
+; set-nth over multiple values
+(define/match (set-nth** seq . args)
+  [(_ (list)) seq]
+  [(_ (list n v args ...))
+   (apply set-nth** (set-nth* seq n v) args)])
+
+; update-nth over multiple values
+(define/match (update-nth** seq . args)
+  [(_ (list)) seq]
+  [(_ (list n proc args ...))
+   (apply update-nth** (update-nth* seq n proc) args)])
 
 ; lazy filter
 (define (filter pred seq)

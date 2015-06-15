@@ -185,6 +185,25 @@ procedure is applied to the old value at @racket[index] to produce its replaceme
 @(coll-examples
   (update-nth '(1 2 3) 1 (λ (n) (+ 10 n))))}
 
+@defproc[(set-nth* [seq sequence?] [index exact-nonnegative-integer?] [value any/c] ... ...)
+         sequence?]{
+Repeatedly calls @racket[set-nth] using each pair of @racket[index] and @racket[value] arguments to
+produce a final sequence. The @racket[set-nth*] function @emph{must} be provided an odd number of
+arguments (including the @racket[seq] argument) or a contract error will be raised.
+
+@(coll-examples
+  (set-nth* '(1 2 3) 0 'a 2 'c))}
+
+@defproc[(update-nth* [seq sequence?] [index exact-nonnegative-integer?]
+                      [proc (any/c . -> . any/c)] ... ...)
+         sequence?]{
+Repeatedly calls @racket[update-nth] using each pair of @racket[index] and @racket[proc] arguments to
+produce a final sequence. The @racket[update-nth*] function @emph{must} be provided an odd number of
+arguments (including the @racket[seq] argument) or a contract error will be raised.
+
+@(coll-examples
+  (update-nth* '(1 2 3) 0 add1 2 sub1))}
+
 @defproc[(reverse [seq sequence?]) sequence?]{
 Returns a new sequence with all the elements of @racket[seq], but in reverse order. If @racket[seq] is
 infinite, this may not terminate.
