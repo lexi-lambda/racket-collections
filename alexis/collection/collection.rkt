@@ -70,6 +70,7 @@
               #:rest [seqs (non-empty-listof sequence?*)]
               [result any/c])]
   [sequence->list (sequence?* . -> . list?)]
+  [sequence->list* (sequence?* . -> . list?)]
   ; helpers
   [second (sequence?* . -> . any)]
   [third (sequence?* . -> . any)]
@@ -411,6 +412,13 @@
 ; simple abbreviation to avoid manually reversing the result list
 (define (sequence->list seq)
   (reverse (extend '() seq)))
+
+; like sequence->list, but deep
+(define (sequence->list* seq)
+  (for/list ([e (in seq)])
+    (if (sequence? e)
+        (sequence->list* e)
+        e)))
 
 ; using ‘in’ outside of a for clause converts a sequence to a stream
 (define/contract in/proc

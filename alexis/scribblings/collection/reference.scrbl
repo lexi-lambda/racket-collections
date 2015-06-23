@@ -394,6 +394,21 @@ Flattens a potentially nested sequence into a sequence of flat values.
   (sequence->list (flatten '((((()()()))(((()))())))))
   (sixth (flatten (repeat 1))))}
 
+@defproc[(chunk [n exact-positive-integer?] [seq sequence?]) (sequenceof sequence?)]{
+Lazily produces a new sequence based on @racket[seq] but with its elements grouped into subsequences
+taken @racket[n] at a time. If the length of @racket[seq] is not evenly divisible by @racket[n], then
+the final subsequence will contain the remaining elements.
+
+@(coll-examples
+  (sequence->list* (chunk 3 (range 10))))}
+
+@defproc[(chunk* [n exact-positive-integer?] [seq sequence?]) (sequenceof sequence?)]{
+Like @racket[chunk], but if the length of @racket[seq] is not evenly divisible by @racket[n], then an
+exception will be raised.
+
+@(coll-examples
+  (sequence->list* (chunk* 3 (range 10))))}
+
 @defproc[(append-map [f procedure?] [seq sequence?] ...+) sequence?]{
 Like @racket[(apply append (map f seq ...))].
 
@@ -451,6 +466,17 @@ memory until it is exhausted.
 @(coll-examples
   (sequence->list #(1 2 3))
   (sequence->list (hash 'a 'b 1 2 "foo" "bar")))}
+
+@defproc[(sequence->list* [seq sequence?]) list?]{
+Like @racket[sequence->list], but recursively calls itself on any of the elements of @racket[seq] that
+are also sequences.
+
+If @racket[seq] or any of its subsequences are infinite, then this function will not terminate, and it
+will infinitely allocate memory until it is exhausted.
+
+@(coll-examples
+  (sequence->list* #(1 #(2 3)))
+  (sequence->list* (chunk 2 (range 10))))}
 
 @defproc[(sequence->string [seq (sequenceof char?)]) (and/c string? sequence?)]{
 Converts @racket[seq], which must contain only @reftech{characters}, to an immutable

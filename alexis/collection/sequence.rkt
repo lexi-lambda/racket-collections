@@ -45,6 +45,8 @@
   [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]
   [append* ([] #:rest (non-empty-listof sequence?) . ->* . sequence?)]
   [flatten (sequence? . -> . sequence?)]
+  [chunk (exact-nonnegative-integer? sequence? . -> . sequence?)]
+  [chunk* (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [generate-sequence (generator? . -> . sequence?)]
   [sequence->string ((sequenceof char?) . -> . (and/c string? sequence?))]
   [sequence->bytes ((sequenceof byte?) . -> . (and/c bytes? sequence?))]
@@ -237,6 +239,23 @@
          [else
           (for-each yield (apply proc (map first seqs*)))
           (loop (map rest seqs*))])))))
+
+; groups sequences into subsequences of length ‘n’
+(define (chunk n seq)
+  (if (empty? seq) empty-stream
+      (let loop ([x n]
+                 [seq seq]
+                 [acc empty-stream])
+        (if (or (zero? x) (empty? seq))
+            (stream-cons (reverse acc) (chunk n seq))
+            (loop (sub1 x) (rest seq) (stream-cons (first seq) acc))))))
+
+; like ‘chunk’, but throws an exception if the sequence cannot be divided perfectly
+(define (chunk* n seq)
+  (if (empty? seq) empty-stream
+      (let ([head (take n seq)]
+            [tail (drop n seq)])
+        (stream-cons head (chunk* n tail)))))
 
 ; creates a sequence by lazily pulling values from a generator
 (define (generate-sequence g)

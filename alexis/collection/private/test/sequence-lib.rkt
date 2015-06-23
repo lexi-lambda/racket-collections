@@ -4,6 +4,7 @@
   rackunit
   alexis/collection
   racket/function
+  (only-in racket/list range)
   racket/stream
   racket/port)
 
@@ -50,6 +51,12 @@
  (check-equal? (sequence->list (flatten '((1 2) 3 (((4)))))) '(1 2 3 4))
  (check-equal? (nth (flatten (repeat (repeat '(1)))) 1000) 1)
  (check-equal? (second (append-map values (repeat (repeat 1)))) 1))
+
+(test-case
+ "Sequence chunking"
+ (check-equal? (sequence->list* (chunk 2 (range 10))) '((0 1) (2 3) (4 5) (6 7) (8 9)))
+ (check-equal? (sequence->list* (chunk 3 (range 10))) '((0 1 2) (3 4 5) (6 7 8) (9)))
+ (check-exn exn:fail:contract? (thunk (sequence->list* (chunk* 3 (range 10))))))
 
 (test-case
  "Built-in infinite sequences"
