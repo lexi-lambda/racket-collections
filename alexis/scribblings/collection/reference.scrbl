@@ -284,6 +284,16 @@ The same binding as @racket[in-naturals] but provided under a different name.
   (nth (naturals) 20)
   (nth (naturals 5) 20))}
 
+@defproc*[([(range [end number?]) stream?]
+           [(range [start number?]
+                   [end number?]
+                   [step number? 1]) stream?])]{
+The same binding as @racket[in-range] but provided under a different name.
+
+@(coll-examples
+  (nth (range 100) 20)
+  (nth (range 0 100 0.5) 20))}
+
 @defproc*[([(randoms [rand-gen pseudo-random-generator? (make-pseudo-random-generator)])
             (sequenceof (and/c real? inexact? (>/c 0) (</c 1)))]
            [(randoms [k (integer-in 1 4294967087)]
@@ -308,7 +318,7 @@ Returns a new @emph{lazy sequence} that contains the first @racket[n] elements o
 Returns a new sequence that contains all @emph{except} the first @racket[n] elements of @racket[seq].
 
 @(coll-examples
-  (drop 5 (range 10)))}
+  (sequence->list (drop 5 (range 10))))}
 
 @defproc[(subsequence [seq sequence?]
                       [start exact-nonnegative-integer?]
@@ -554,7 +564,7 @@ If no implementation for @racket[known-finite?] is provided, it will always retu
 
 @(coll-examples
   (known-finite? #(a b c))
-  (known-finite? (range 10))
+  (known-finite? (sequence->list (range 10)))
   (known-finite? (in-naturals)))}
 
 @subsection{Indexable Collections}

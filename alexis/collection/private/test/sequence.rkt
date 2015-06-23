@@ -6,7 +6,6 @@
   racket/set
   racket/stream
   racket/function
-  (only-in racket/list range)
   racket/string)
 
 (test-case

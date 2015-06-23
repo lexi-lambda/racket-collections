@@ -4,7 +4,6 @@
   rackunit
   alexis/collection
   racket/function
-  (only-in racket/list range)
   racket/stream
   racket/port)
 
