@@ -573,8 +573,8 @@ Data structures are @deftech{indexable} if they provide any sort of indexed data
 
 @defthing[gen:indexable any/c]{
 
-A @reftech{generic interface} that defines exactly one function, @racket[ref], which accepts an
-instance of @racket[gen:indexable] and an index.
+A @reftech{generic interface} that defines @racket[ref] and @racket[set-ref] for getting and setting
+key-value data.
 
 @margin-note{
 Be careful when using @racket[ref] with @tech{generic sequences}. If numeric indexing is your
@@ -590,7 +590,10 @@ and @reftech{dictionaries} are also indexable.
 @(coll-examples
   (ref '(a b c) 1)
   (ref (hash 'foo "bar") 'foo)
-  (ref '((1 . 2) (3 . 4)) 1))}
+  (ref '((1 . 2) (3 . 4)) 1)
+  (set-ref '(a b c) 1 'x)
+  (set-ref (hash 'foo "bar") 'foo "baz")
+  (set-ref '((1 . 2) (3 . 4)) 1 -2))}
 
 @defproc[(indexable? [v any/c]) boolean?]{
 
@@ -599,6 +602,11 @@ A predicate that identifies if @racket[v] is @tech{indexable}.}
 @defproc[(ref [collection indexable?] [index any/c]) any]{
 
 Returns the value associated with the provided @racket[index] for the given @racket[collection].}
+
+@defproc[(set-ref [collection indexable?] [index any/c] [value any/c]) any]{
+
+Returns a new collection with all the associations in @racket[collection], plus a association between
+@racket[index] and @racket[value].}
 
 @subsection{Using sequences with @racket[match]}
 

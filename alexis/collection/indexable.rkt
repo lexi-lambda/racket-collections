@@ -8,11 +8,15 @@
 
 (provide
  gen:indexable indexable? indexable/c
- ref)
+ ref set-ref)
 
 (define-generics indexable
   (ref indexable . _)
+  (set-ref indexable . _)
   #:defaults
-  ([hash? (define ref hash-ref)]
-   [dict? (define ref dict-ref)]
-   [sequence? (define ref nth)]))
+  ([hash? (define ref hash-ref)
+          (define set-ref hash-set)]
+   [dict? (define ref dict-ref)
+          (define set-ref dict-set)]
+   [sequence? (define ref nth)
+              (define set-ref set-nth)]))
