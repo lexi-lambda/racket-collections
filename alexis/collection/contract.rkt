@@ -4,7 +4,7 @@
   alexis/collection/collection
   racket/contract
   racket/generic
-  unstable/function
+  racket/function
   racket/stream
   racket/set)
 

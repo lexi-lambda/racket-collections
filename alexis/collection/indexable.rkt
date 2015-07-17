@@ -2,7 +2,6 @@
 
 (require racket/generic
          racket/function
-         unstable/function
          racket/dict
          "collection.rkt")
 
