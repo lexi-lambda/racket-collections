@@ -3,7 +3,8 @@
 ;; This contains the base implementations for gen:collection and gen:sequence, as well as some derived
 ;; functions to operate on them.
 
-(require (for-syntax racket/base)
+(require (for-syntax racket/base
+                     syntax/parse)
          racket/lazy-require
          racket/generic
          racket/contract
@@ -33,7 +34,7 @@
 (provide
  gen:collection collection? collection/c
  gen:sequence (rename-out [sequence?* sequence?]) sequence/c
- apply in for/sequence for*/sequence
+ apply in for/sequence for*/sequence for/sequence/derived for*/sequence/derived
  (contract-out
   ; gen:collection
   [extend (collection? sequence?* . -> . collection?)]
@@ -447,21 +448,26 @@
            #t #t
            [r])]])))
 
-(define-syntaxes (for/sequence for*/sequence)
+(define-syntaxes (for/sequence/derived for*/sequence/derived)
   (let ()
-    (define ((make-for/sequence name derived-stx) stx)
-      (syntax-case stx ()
-        [(_ clauses . body)
+    (define ((make-for/sequence/derived derived-stx) stx)
+      (syntax-parse stx
+        [(_ name:id clauses . body)
          (begin
            (when (null? (syntax->list #'body))
-             (raise-syntax-error name
+             (raise-syntax-error (syntax-e #'name)
                                  "missing body expression after sequence bindings"
                                  stx #'body))
            #`(sequence->stream
               (in-generator
                (#,derived-stx
-                #,stx () clauses
+                (name clauses . body) () clauses
                 (yield (let () . body))
                 (values)))))]))
-    (values (make-for/sequence 'for/sequence #'for/fold/derived)
-            (make-for/sequence 'for*/sequence #'for*/fold/derived))))
+    (values (make-for/sequence/derived #'for/fold/derived)
+            (make-for/sequence/derived #'for*/fold/derived))))
+
+(define-syntax-rule (for/sequence . rest)
+  (for/sequence/derived for/sequence . rest))
+(define-syntax-rule (for*/sequence . rest)
+  (for*/sequence/derived for*/sequence . rest))

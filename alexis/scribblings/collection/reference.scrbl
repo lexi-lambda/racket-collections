@@ -467,6 +467,20 @@ behavior of @racket[for*].
    (for/sequence ([i (in-range 10)])
      (* i i))))}
 
+@deftogether[(@defform[(for/sequence/derived name-id (for-clause ...) body-or-break ... body)]
+              @defform[(for*/sequence/derived name-id (for-clause ...) body-or-break ... body)])]{
+Both forms work exactly like @racket[for/sequence] or @racket[for*/sequence], respectively, except
+that errors are reported in terms of @racket[name-id]. This can be useful for creating new forms that
+collect the results of @racket[for/sequence].
+
+@(coll-examples
+  (define-syntax-rule (for/immutable-vector . rest)
+    (extend #() (for/sequence/derived for/immutable-vector . rest)))
+  (for/immutable-vector ([i (in-range 10)])
+    (* i i))
+  (for/immutable-vector (malformed)
+    (* i i)))}
+
 @defproc[(sequence->list [seq sequence?]) list?]{
 Converts any sequence to a list. Equivalent to @racket[(reverse (extend '() seq))].
 
