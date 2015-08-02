@@ -20,7 +20,7 @@ install:
 before_script:
 
 script:
-  - raco test -xp alexis-collections
+  - raco test -p alexis-collections
   - raco cover -bf coveralls -d $TRAVIS_BUILD_DIR/coverage -p alexis-collections
 
 after_script:
