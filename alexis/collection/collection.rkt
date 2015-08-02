@@ -11,7 +11,6 @@
          racket/generator
          racket/function
          racket/match
-         unstable/function
          alexis/util/match
          alexis/util/renamed
          (prefix-in
@@ -23,7 +22,7 @@
               racket/stream
               racket/dict))
          (prefix-in
-          u: unstable/list)
+          u: racket/list)
          "countable.rkt"
          "private/util.rkt")
 
