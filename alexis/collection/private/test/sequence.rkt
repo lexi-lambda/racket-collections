@@ -43,7 +43,8 @@
  "Sequence reversal"
  (check-equal? (reverse '(1 2 3)) '(3 2 1))
  (check-equal? (extend '() (reverse #(1 2 3))) '(1 2 3))
- (check-equal? (sequence->list (reverse (stream 1 2 3 4))) '(4 3 2 1)))
+ (check-equal? (sequence->list (reverse (stream 1 2 3 4))) '(4 3 2 1))
+ (check-equal? (reverse "abc") "cba"))
 
 (test-case
  "Sequence-based application"

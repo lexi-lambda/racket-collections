@@ -28,6 +28,7 @@
 
 ; lazily depend on random-access.rkt since it depends on this
 (lazy-require
+ ["sequence.rkt" [sequence->string]]
  ["private/random-access.rkt" [wrap-random-access-sequence]])
 
 (provide
@@ -253,7 +254,7 @@
    [(conjoin string? immutable?)
     (define nth string-ref)
     (define rest (compose1 b:stream-rest b:sequence->stream in-string))
-    (define reverse (compose1 stream-reverse b:sequence->stream in-string))
+    (define reverse (compose1 sequence->string stream-reverse b:sequence->stream in-string))
     (define (random-access? s) #t)]
    [(conjoin bytes? immutable?)
     (define nth bytes-ref)
