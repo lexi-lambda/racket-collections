@@ -32,13 +32,13 @@
  ["private/random-access.rkt" [wrap-random-access-sequence]])
 
 (provide
- gen:collection collection? collection/c
+ gen:collection (rename-out [collection?* collection?]) collection/c
  gen:sequence (rename-out [sequence?* sequence?]) sequence/c
  apply in for/sequence for*/sequence for/sequence/derived for*/sequence/derived
  (contract-out
   ; gen:collection
-  [extend (collection? sequence?* . -> . collection?)]
-  [conj (collection? any/c . -> . collection?)]
+  [extend (collection?* sequence?* . -> . collection?*)]
+  [conj (collection?* any/c . -> . collection?*)]
   ; gen:sequence
   [empty? (sequence?* . -> . boolean?)]
   [first ((and/c sequence?* (not/c empty?)) . -> . any)]
@@ -50,8 +50,8 @@
   [reverse (sequence?* . -> . sequence?*)]
   [random-access? (sequence?* . -> . boolean?)]
   ; derived functions
-  [extend* ([collection?] #:rest (listof sequence?*) . ->* . sequence?*)]
-  [conj* ([collection?] #:rest any/c . ->* . sequence?*)]
+  [extend* ([collection?*] #:rest (listof sequence?*) . ->* . sequence?*)]
+  [conj* ([collection?*] #:rest any/c . ->* . sequence?*)]
   [rename set-nth** set-nth* ([sequence?*]
                               #:rest (tuple-listof exact-nonnegative-integer? any/c)
                               . ->* . sequence?*)]
@@ -262,7 +262,7 @@
     (define reverse (compose1 stream-reverse b:sequence->stream in-bytes))
     (define (random-access? b) #t)]))
 
-; create a custom flat contract to provide nice error messages for mutable builtins
+; create custom flat contracts to provide nice error messages for mutable builtins
 (define sequence?*
   (make-flat-contract
    #:name 'sequence?
@@ -278,6 +278,22 @@
            '(expected: "sequence?, which must be immutable" given: "~e, which is mutable") val)]
          [else
           (raise-blame-error blame val '(expected: "sequence?" given: "~e") val)])))))
+
+(define collection?*
+  (make-flat-contract
+   #:name 'collection?
+   #:first-order collection?
+   #:projection
+   (λ (blame)
+     (λ (val)
+       (cond
+         [(collection? val) val]
+         [((disjoin vector? hash? b:set-mutable? b:set-weak? b:dict?) val)
+          (raise-blame-error
+           blame val
+           '(expected: "collection?, which must be immutable" given: "~e, which is mutable") val)]
+         [else
+          (raise-blame-error blame val '(expected: "collection?" given: "~e") val)])))))
 
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------

@@ -33,3 +33,10 @@
  "Collection abbreviations"
  (check-equal? (conj* '() 'a 'b 'c) '(c b a))
  (check-equal? (extend* '() '(a b c) #(1 2 3) (hash 'foo 'bar)) '((foo . bar) 3 2 1 c b a)))
+
+(test-case
+ "Special contract errors on mutable builtins"
+ (check-exn #rx"which is mutable" (thunk (conj (vector) #f)))
+ (check-exn #rx"which is mutable" (thunk (conj (make-hash) #f)))
+ (check-exn #rx"which is mutable" (thunk (conj (mutable-set) #f)))
+ (check-exn #rx"expected: collection\\?\n" (thunk (conj 'not-a-collection #f))))
