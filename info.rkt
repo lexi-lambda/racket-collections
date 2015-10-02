@@ -6,10 +6,11 @@
 (define version "0.2.0")
 
 (define deps
-  '("base"
-    "rackunit-lib"
-    "alexis-util"))
+  '("alexis-util"
+    "base"
+    "rackunit-lib"))
 (define build-deps
-  '("scribble-lib"
+  '("cover"
+    "cover-coveralls"
     "racket-doc"
-    "cover"))
+    "scribble-lib"))
