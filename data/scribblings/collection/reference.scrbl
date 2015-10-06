@@ -437,6 +437,45 @@ together using @racket[or] like @racket[foldl].
   (ormap symbol? '(1 a 3 4))
   (ormap values '(#f a #f #f)))}
 
+@defproc[(find-best [seq (and/c sequence? (not/c empty?))]
+                    [>? (any/c any/c . -> . any/c)]
+                    [#:key extract-key (any/c . -> . any/c) values])
+         any/c]{
+A generalization of @racket[find-min] and @racket[find-max], @racket[find-best] returns the first
+element, @racket[_e], of @racket[seq] for which @racket[(>? (extract-key _e) (extract-key _v))] is
+non-@racket[#f] for all other elements, @racket[_v], of @racket[seq]. It is assumed that @racket[>?]
+is a well-behaved ordering procedure.
+
+@(coll-examples
+  (find-best '("pears" "bananas" "apples") string<?)
+  (find-best '((3 pears) (1 banana) (2 apples)) string<?
+             #:key (compose1 symbol->string second))
+  (find-best '((2 apples) (5 apples)) string<?
+             #:key (compose1 symbol->string second)))
+
+The functions @racket[find-min] and @racket[find-max] are defined in terms of @racket[find-best],
+with @racket[<] and @racket[>] as the ordering procedures, respectively.}
+
+@defproc[(find-min [seq (and/c sequence? (not/c empty?))]
+                   [#:key extract-key (any/c . -> . real?) values])
+         any/c]{
+Returns the first element, @racket[_e], of @racket[seq] for which @racket[(extract-key _e)] returns
+the smallest value.
+
+@(coll-examples
+  (find-min '((3 pears) (1 banana) (2 apples)) #:key first)
+  (find-min '((1 banana) (1 orange)) #:key first))}
+
+@defproc[(find-max [seq (and/c sequence? (not/c empty?))]
+                   [#:key extract-key (any/c . -> . real?) values])
+         any/c]{
+Returns the first element, @racket[_e], of @racket[seq] for which @racket[(extract-key _e)] returns
+the largest value.
+
+@(coll-examples
+  (find-max '((3 pears) (1 banana) (2 apples)) #:key first)
+  (find-max '((1 banana) (1 orange)) #:key first))}
+
 @defproc[(index-of [seq sequence?] [v any/c] [is-equal? (any/c any/c . -> . any/c) equal?])
          (or/c any/c #f)]{
 Retrieves the index of the first element @racket[_x] of @racket[seq] for which

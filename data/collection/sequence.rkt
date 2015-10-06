@@ -34,6 +34,11 @@
                                         (unconstrained-domain-> sequence?))])
                    #:rest [seqs (non-empty-listof sequence?)]
                    [result sequence?])]
+  [find-best (->* [(and/c sequence? (not/c empty?)) (any/c any/c . -> . any/c)]
+                  [#:key (any/c . -> . any/c)]
+                  any/c)]
+  [find-min (->* [(and/c sequence? (not/c empty?))] [#:key (any/c . -> . real?)] any/c)]
+  [find-max (->* [(and/c sequence? (not/c empty?))] [#:key (any/c . -> . real?)] any/c)]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
   [index-of ([sequence? any/c] [(any/c any/c . -> . any/c)]
                                . ->* . (or/c exact-nonnegative-integer? #f))]
@@ -115,6 +120,24 @@
   (apply foldl (λ (acc . vals) (and acc (apply proc vals))) #t seqs))
 (define (ormap proc . seqs)
   (apply foldl (λ (acc . vals) (or acc (apply proc vals))) #f seqs))
+
+; get an element that optimizes a given criterion
+(define (find-best seq >? #:key [extract-key values])
+  (define-values [v x]
+    (for/fold ([v (first seq)]
+               [x (extract-key (first seq))])
+              ([v2 (in (rest seq))])
+      (define x2 (extract-key v2))
+      (if (>? x2 x)
+          (values v2 x2)
+          (values v x))))
+  v)
+
+; common cases of find-best
+(define (find-min seq #:key [extract-key values])
+  (find-best seq < #:key extract-key))
+(define (find-max seq #:key [extract-key values])
+  (find-best seq > #:key extract-key))
 
 ; get the end of a finite sequence
 (define (last seq)

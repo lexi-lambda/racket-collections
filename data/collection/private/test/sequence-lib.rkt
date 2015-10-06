@@ -41,6 +41,26 @@
  (check-equal? (ormap values '(#f a #f #f)) 'a))
 
 (test-case
+ "find-best, find-min, and find-max"
+ (check-equal? (find-best '("pears" "bananas" "apples") string<?) "apples")
+ (check-equal? (find-best '("pears" "bananas" "apples") string>?) "pears")
+
+ (check-equal? (find-best '((3 pears) (1 banana) (2 apples)) string<?
+                          #:key (compose1 symbol->string second))
+               '(2 apples))
+ (check-equal? (find-best '((3 pears) (1 banana) (2 apples)) string>?
+                          #:key (compose1 symbol->string second))
+               '(3 pears))
+
+ (check-equal? (find-min '(8 5 0 -2 5)) -2)
+ (check-equal? (find-max '(8 5 0 -2 5)) 8)
+
+ (check-equal? (find-min '((3 pears) (1 banana) (2 apples)) #:key first) '(1 banana))
+ (check-equal? (find-min '((1 banana) (1 orange))           #:key first) '(1 banana))
+ (check-equal? (find-max '((3 pears) (1 banana) (2 apples)) #:key first) '(3 pears))
+ (check-equal? (find-max '((3 pears) (3 oranges))           #:key first) '(3 pears)))
+
+(test-case
  "Extra sequence operations"
  (check-equal? (last '(1 2 3 4)) 4)
  (check-equal? (last #(1 2 3 4)) 4)
