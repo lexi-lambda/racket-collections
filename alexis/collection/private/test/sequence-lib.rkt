@@ -58,6 +58,38 @@
  (check-exn exn:fail:contract? (thunk (sequence->list* (chunk* 3 (range 10))))))
 
 (test-case
+ "cartesian-product"
+ (check-equal? (sequence->list* (cartesian-product))
+               '(()))
+ (check-equal? (sequence->list* (cartesian-product (range 20) '() (naturals)))
+               '())
+ (check-equal? (sequence->list* (cartesian-product '(1 2) '(a b) '(c d)))
+               '((1 a c) (1 a d) (1 b c) (1 b d) (2 a c) (2 a d) (2 b c) (2 b d)))
+ (check-equal? (sequence->list* (cartesian-product '(1 2 3) '(a b c)))
+               '((1 a) (1 b) (1 c) (2 a) (2 b) (2 c) (3 a) (3 b) (3 c)))
+ (check-equal? (sequence->list* (cartesian-product '(4 5 6) '(d e f) '(#t #f)))
+               '((4 d #t)
+                 (4 d #f)
+                 (4 e #t)
+                 (4 e #f)
+                 (4 f #t)
+                 (4 f #f)
+                 (5 d #t)
+                 (5 d #f)
+                 (5 e #t)
+                 (5 e #f)
+                 (5 f #t)
+                 (5 f #f)
+                 (6 d #t)
+                 (6 d #f)
+                 (6 e #t)
+                 (6 e #f)
+                 (6 f #t)
+                 (6 f #f)))
+ (check-equal? (sequence->list* (take 10 (cartesian-product (naturals) '(a b) '(c d))))
+               '((0 a c) (0 a d) (0 b c) (0 b d) (1 a c) (1 a d) (1 b c) (1 b d) (2 a c) (2 a d))))
+
+(test-case
  "Built-in infinite sequences"
  (check-equal?
   (parameterize ([current-pseudo-random-generator (make-pseudo-random-generator)])

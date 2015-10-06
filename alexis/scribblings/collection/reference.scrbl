@@ -443,6 +443,16 @@ Like @racket[(apply append (map f seq ...))].
 @(coll-examples
   (sequence->list (append-map values '((1) (2) (3)))))}
 
+@defproc[(cartesian-product [seq sequence?] ...) (sequenceof sequence?)]{
+Computes the n-ary @hyperlink["https://en.wikipedia.org/wiki/Cartesian_product"]{Cartesian product} of
+the given sequences. The result is computed lazily—if any of the @racket[seq]s are infinite, then the
+result will also be infinite.
+
+@(coll-examples
+  (sequence->list* (cartesian-product '(1 2) '(a b) '(c d)))
+  (sequence->list* (cartesian-product '(a) '(1 2 3)))
+  (sequence->list* (cartesian-product '(4 5 6) '(d e f) '(#t #f))))}
+
 @deftogether[(@defproc[(second [seq sequence?]) any/c]
               @defproc[(third [seq sequence?]) any/c]
               @defproc[(fourth [seq sequence?]) any/c]

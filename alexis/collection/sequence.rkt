@@ -48,6 +48,7 @@
   [flatten (sequence? . -> . sequence?)]
   [chunk (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [chunk* (exact-nonnegative-integer? sequence? . -> . sequence?)]
+  [cartesian-product ([] #:rest (listof sequence?) . ->* . (sequenceof sequence?))]
   [generate-sequence (generator? . -> . sequence?)]
   [sequence->string ((sequenceof char?) . -> . (and/c string? sequence?))]
   [sequence->bytes ((sequenceof byte?) . -> . (and/c bytes? sequence?))]
@@ -257,6 +258,14 @@
       (let ([head (take n seq)]
             [tail (drop n seq)])
         (stream-cons head (chunk* n tail)))))
+
+; performs a lazy, n-dimensional cartesian product
+(define (cartesian-product . seqs)
+  (define (cp-2 as bs)
+    (for*/sequence ([i (in as)]
+                    [j (in bs)])
+      (stream-cons i j)))
+  (foldr cp-2 (list empty-stream) seqs))
 
 ; creates a sequence by lazily pulling values from a generator
 (define (generate-sequence g)
