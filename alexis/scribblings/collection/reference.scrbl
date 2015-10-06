@@ -213,6 +213,24 @@ infinite, this may not terminate.
   (reverse #(1 2 3))
   (extend #() (reverse #(1 2 3))))}
 
+@defproc[(sequence->collection [seq sequence?]) collection?]{
+Converts @racket[seq] to a collection. By default, if @racket[seq] is already a collection, then this
+is a no-op, and the result is @racket[seq]. Otherwise, a collection will be returned that is
+implemented in terms of @racket[append].
+
+Beware that the fallback collection returned by this function can be very slow if repeatedly
+@racket[conj]'d upon. However, since most sequences are also collections, it can also be much, much
+faster than copying the sequence into a collection type with @racket[extend]. Therefore, it is
+recommended that general-purpose sequences which are not collections @emph{always} implement a
+performant version of @racket[sequence->collection].
+
+@(coll-examples
+  (reverse #(2 1))
+  (eval:alts (collection? (reverse #(2 1)))
+             (eval:check (collection? (reverse #(2 1))) #f))
+  (sequence->collection (reverse #(2 1)))
+  (sequence->list (conj (sequence->collection (reverse #(2 1))) 3)))}
+
 @defproc[(random-access? [seq sequence?]) boolean?]{
 Provides a way for sequence implementations to convey whether or not they are random access. If no
 implementation is provided, the default implementation always returns @racket[#f].

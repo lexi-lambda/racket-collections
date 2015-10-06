@@ -48,6 +48,7 @@
   [rename update-nth* update-nth (sequence?* exact-nonnegative-integer? (any/c . -> . any/c)
                                              . -> . sequence?*)]
   [reverse (sequence?* . -> . sequence?*)]
+  [sequence->collection (sequence?* . -> . collection?*)]
   [random-access? (sequence?* . -> . boolean?)]
   ; derived functions
   [extend* ([collection?*] #:rest (listof sequence?*) . ->* . sequence?*)]
@@ -156,6 +157,10 @@
            (b:stream-cons (proc (first seq)) (in (rest seq)))
            (b:stream-cons (first seq) (loop (rest seq) (sub1 index)))))]))
 
+(define (-sequence->collection seq)
+  (if (collection? seq) seq
+      (appending-collection seq)))
+
 (define (stream-reverse str)
   (for/fold ([str* b:empty-stream])
             ([e (b:in-stream str)])
@@ -188,7 +193,9 @@
     (define/contract (conj dct item)
       ((and/c b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?)
        pair? . -> . (and/c b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?))
-      (b:dict-set dct (car item) (cdr item)))]))
+      (b:dict-set dct (car item) (cdr item)))]
+   [b:stream?
+    (define (conj strm item) (b:stream-cons item strm))]))
 
 ; a sequence is an ordered set of values
 (define-generics sequence
@@ -199,6 +206,7 @@
   (set-nth sequence index value)
   (update-nth sequence index proc)
   (reverse sequence)
+  (sequence->collection sequence)
   (random-access? sequence)
   #:defined-predicate sequence-implements?
   #:fallbacks
@@ -209,6 +217,7 @@
    (define set-nth -set-nth)
    (define update-nth -update-nth)
    (define reverse -reverse)
+   (define sequence->collection -sequence->collection)
    (define (random-access? seq) #f)]
   #:derive-property prop:sequence (λ (s) (in s))
   #:fast-defaults
@@ -222,8 +231,6 @@
     (define update-nth u:list-update)])
   #:defaults
   ([(conjoin vector? immutable?)
-    (define/generic -rest rest)
-    (define/generic -reverse reverse)
     (define nth vector-ref)
     (define (set-nth vec i v)
       (let ([copy (b:vector-copy vec)])
@@ -294,6 +301,23 @@
            '(expected: "collection?, which must be immutable" given: "~e, which is mutable") val)]
          [else
           (raise-blame-error blame val '(expected: "collection?" given: "~e") val)])))))
+
+;; utility implementations
+;; ---------------------------------------------------------------------------------------------------
+
+(struct appending-collection (seq)
+  #:methods gen:collection
+  [(define/match* (conj (appending-collection seq) e)
+     (appending-collection (append seq (list e))))]
+  #:methods gen:sequence
+  [(define/generic -empty? empty?)
+   (define/generic -first first)
+   (define/generic -rest rest)
+   (define/generic -set-nth set-nth)
+   (define/match* (empty? (appending-collection seq)) (-empty? seq))
+   (define/match* (first (appending-collection seq)) (-first seq))
+   (define/match* (rest (appending-collection seq)) (-rest seq))
+   (define/match* (set-nth (appending-collection seq) i v) (-set-nth seq i v))])
 
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------

@@ -47,6 +47,19 @@
  (check-equal? (reverse "abc") "cba"))
 
 (test-case
+ "Converting sequences to collections"
+ (define (check-eq-ness seq)
+   (check-eq? (sequence->collection seq) seq))
+
+ (check-eq-ness '(1 2 3))
+ (check-eq-ness #(1 2 3))
+ (check-eq-ness (set 1 2 3))
+ (check-eq-ness (stream 1 2 3))
+
+ (check-false (collection? (reverse #(2 1))))
+ (check-equal? (sequence->list (conj (sequence->collection (reverse #(2 1))) 3)) '(1 2 3)))
+
+(test-case
  "Sequence-based application"
  (check-equal? (apply +) 0)
  (check-equal? (apply + #(1 1 1)) 3)
