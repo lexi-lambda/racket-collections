@@ -425,17 +425,17 @@ Like @racket[(apply append (map f seq ...))].
 @(coll-examples
   (sequence->list (append-map values '((1) (2) (3)))))}
 
-@deftogether[(@defproc[(second [coll collection?]) any/c]
-              @defproc[(third [coll collection?]) any/c]
-              @defproc[(fourth [coll collection?]) any/c]
-              @defproc[(fifth [coll collection?]) any/c]
-              @defproc[(sixth [coll collection?]) any/c]
-              @defproc[(seventh [coll collection?]) any/c]
-              @defproc[(eighth [coll collection?]) any/c]
-              @defproc[(ninth [coll collection?]) any/c]
-              @defproc[(tenth [coll collection?]) any/c])]{
-A set of helper functions for accessing elements of @racket[coll] implemented in terms of
-@racket[nth]. A random-access implementation of @racket[nth] will make these random-access as well.
+@deftogether[(@defproc[(second [seq sequence?]) any/c]
+              @defproc[(third [seq sequence?]) any/c]
+              @defproc[(fourth [seq sequence?]) any/c]
+              @defproc[(fifth [seq sequence?]) any/c]
+              @defproc[(sixth [seq sequence?]) any/c]
+              @defproc[(seventh [seq sequence?]) any/c]
+              @defproc[(eighth [seq sequence?]) any/c]
+              @defproc[(ninth [seq sequence?]) any/c]
+              @defproc[(tenth [seq sequence?]) any/c])]{
+A set of helper functions for accessing elements of @racket[seq] implemented in terms of @racket[nth].
+A random-access implementation of @racket[nth] will make these random-access as well.
 
 @(coll-examples
   (second (in-naturals))
