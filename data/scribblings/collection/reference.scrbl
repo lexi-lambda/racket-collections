@@ -413,6 +413,39 @@ together using @racket[or] like @racket[foldl].
   (ormap symbol? '(1 a 3 4))
   (ormap values '(#f a #f #f)))}
 
+@defproc[(find-min [proc (any/c . -> . real?)] [seq (and/c sequence? (not/c empty?))]) any/c]{
+Returns the element of @racket[seq] for which @racket[proc] returns the minimum value.
+If there are multiple elements with equal @racket[proc] values, it returns the first one.
+
+@(coll-examples
+  (find-min car '((3 pears) (1 banana) (2 apples)))
+  (find-min car '((1 banana) (1 orange))))}
+
+@defproc[(find-max [proc (any/c . -> . real?)] [seq (and/c sequence? (not/c empty?))]) any/c]{
+Returns the element of @racket[seq] for which @racket[proc] returns the maximum value.
+If there are multiple elements with equal @racket[proc] values, it returns the first one.
+
+@(coll-examples
+  (find-max car '((3 pears) (1 banana) (2 apples)))
+  (find-max car '((3 pears) (3 oranges))))}
+
+@defproc[(find-best [<? (any/c any/c . -> . any/c)]
+                    [proc (any/c . -> . any/c)]
+                    [seq (and/c sequence? (not/c empty?))])
+         any/c]{
+A generalization of @racket[find-min] and @racket[find-max], which returns the element of
+@racket[seq] for which @racket[proc] returns a value that is @racket[<?] to all the results
+of @racket[proc] applied to the other elements, assuming that @racket[<?] is a well-behaved
+ordering procedure. If there are multiple elements with equal @racket[proc] values according
+to @racket[<?], it returns the first one.
+
+@(coll-examples
+  (find-best string<? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
+  (find-best string<? (compose1 symbol->string cadr) '((2 apples) (5 apples))))
+
+The functions @racket[find-min] and @racket[find-max] are defined in terms of @racket[find-best],
+with @racket[<] and @racket[>] as the ordering procedures, respectively.}
+
 @defproc[(flatten [s sequence?]) sequence?]{
 Flattens a potentially nested sequence into a sequence of flat values.
 
