@@ -429,9 +429,9 @@ If there are multiple elements with equal @racket[proc] values, it returns the f
   (find-max car '((3 pears) (1 banana) (2 apples)))
   (find-max car '((3 pears) (3 oranges))))}
 
-@defproc[(find-best [<? (any/c any/c . -> . any/c)]
-                    [proc (any/c . -> . any/c)]
-                    [seq (and/c sequence? (not/c empty?))])
+@defproc[(first-by [<? (any/c any/c . -> . any/c)]
+                   [proc (any/c . -> . any/c)]
+                   [seq (and/c sequence? (not/c empty?))])
          any/c]{
 A generalization of @racket[find-min] and @racket[find-max], which returns the element of
 @racket[seq] for which @racket[proc] returns a value that is @racket[<?] to all the results
@@ -440,10 +440,10 @@ ordering procedure. If there are multiple elements with equal @racket[proc] valu
 to @racket[<?], it returns the first one.
 
 @(coll-examples
-  (find-best string<? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
-  (find-best string<? (compose1 symbol->string cadr) '((2 apples) (5 apples))))
+  (first-by string<? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
+  (first-by string<? (compose1 symbol->string cadr) '((2 apples) (5 apples))))
 
-The functions @racket[find-min] and @racket[find-max] are defined in terms of @racket[find-best],
+The functions @racket[find-min] and @racket[find-max] are defined in terms of @racket[first-by],
 with @racket[<] and @racket[>] as the ordering procedures, respectively.}
 
 @defproc[(flatten [s sequence?]) sequence?]{

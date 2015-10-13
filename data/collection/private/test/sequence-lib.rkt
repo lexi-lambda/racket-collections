@@ -24,14 +24,14 @@
  (check-equal? (ormap values '(#f a #f #f)) 'a))
 
 (test-case
- "find-min, find-max, and find-best"
+ "find-min, find-max, and first-by"
  (check-equal? (find-min car '((3 pears) (1 banana) (2 apples))) '(1 banana))
  (check-equal? (find-min car '((1 banana) (1 orange)))           '(1 banana))
  (check-equal? (find-max car '((3 pears) (1 banana) (2 apples))) '(3 pears))
  (check-equal? (find-max car '((3 pears) (3 oranges)))           '(3 pears))
- (check-equal? (find-best string<? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
+ (check-equal? (first-by string<? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
                '(2 apples))
- (check-equal? (find-best string>? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
+ (check-equal? (first-by string>? (compose1 symbol->string cadr) '((3 pears) (1 banana) (2 apples)))
                '(3 pears)))
 
 (test-case
