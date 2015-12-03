@@ -17,7 +17,7 @@
   (make-eval-factory
    #:lang 'racket
    '(racket/generic
-     alexis/collection
+     data/collection
      racket/generator)))
 
 (define-syntax-rule (coll-interaction . body)

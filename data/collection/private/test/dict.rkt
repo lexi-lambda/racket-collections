@@ -2,7 +2,7 @@
 
 (require
   rackunit
-  alexis/collection
+  data/collection
   alexis/util/match
   racket/generic
   racket/dict)

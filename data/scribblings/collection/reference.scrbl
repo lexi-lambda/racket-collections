@@ -8,9 +8,9 @@
                 racket/list
                 racket/set
                 racket/dict)
-               alexis/collection)
+               data/collection)
               (prefix-in base: racket/base)
-              alexis/collection
+              data/collection
               racket/generic
               racket/contract
               racket/stream

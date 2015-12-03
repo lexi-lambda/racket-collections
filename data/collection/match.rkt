@@ -5,8 +5,8 @@
               racket/list
               syntax/parse
               syntax/parse/experimental/template)
-  alexis/collection/collection
-  alexis/collection/sequence
+  data/collection/collection
+  data/collection/sequence
   racket/match)
 
 (provide sequence)

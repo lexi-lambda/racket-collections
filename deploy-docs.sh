@@ -9,10 +9,10 @@ fi
 rm -rf docs || exit 0;
 
 # build the documentation files
-scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./alexis/scribblings/alexis-collections.scrbl
+scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./data/scribblings/collections.scrbl
 
 # go to the documentation directory and create a *new* Git repo
-cd docs/alexis-collections
+cd docs/collections
 git init
 
 # inside this git repo we'll pretend to be a new user

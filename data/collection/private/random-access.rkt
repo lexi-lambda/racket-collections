@@ -1,7 +1,7 @@
 #lang racket/base
 
-(require alexis/collection/collection
-         alexis/collection/countable
+(require data/collection/collection
+         data/collection/countable
          alexis/util/match
          racket/generic
          racket/contract)

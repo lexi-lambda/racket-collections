@@ -1,7 +1,7 @@
 #lang racket/base
 
 (require
-  alexis/collection/collection
+  data/collection/collection
   racket/contract
   racket/generic
   racket/function

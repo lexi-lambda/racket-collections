@@ -5,9 +5,9 @@
 
 (require
   (prefix-in b: racket/list)
-  alexis/collection/collection
-  alexis/collection/countable
-  alexis/collection/contract
+  data/collection/collection
+  data/collection/countable
+  data/collection/contract
   alexis/util/match
   racket/generic
   racket/contract

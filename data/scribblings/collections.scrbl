@@ -5,7 +5,7 @@
 
 @title{Generic Collections}
 
-@defmodule[alexis/collection]
+@defmodule[data/collection]
 
 This provides a set of @reftech{generic interfaces} for built-in Racket collections to create a
 unified interface for working with Racket data structures.

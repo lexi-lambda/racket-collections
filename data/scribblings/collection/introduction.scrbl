@@ -8,9 +8,9 @@
                 racket/list
                 racket/set
                 racket/dict)
-               alexis/collection)
+               data/collection)
               (prefix-in base: racket/base)
-              alexis/collection
+              data/collection
               racket/generic
               racket/contract
               racket/stream
@@ -20,12 +20,12 @@
 
 @title[#:tag "collections-intro"]{Introduction}
 
-The @racketmodname[alexis/collection] library attempts to provide a suitable generic interface for
+The @racketmodname[data/collection] library attempts to provide a suitable generic interface for
 interacting with all of Racket's collections through a uniform interface. That said, in doing so, its
 approach is something of a departure from how some of the functions from @racketmodname[racket/base]
 operate.
 
-Virtually all of the functions provided by @racketmodname[alexis/collection] are
+Virtually all of the functions provided by @racketmodname[data/collection] are
 @emph{collection-agnostic}, so they will operate on any type of collection with consistent behavior.
 This is in stark contrast to @racketmodname[racket/base]'s library, including functions with distinct
 behavior for different kinds of collections (e.g. @racket[list-ref], @racket[vector-ref],
@@ -40,7 +40,7 @@ them:
   (ref (in-naturals) 5)
   (ref (hash 'a 'b 'c 'd) 'a))
 
-However, it also means that some of the functions provided by @racketmodname[alexis/collection] have
+However, it also means that some of the functions provided by @racketmodname[data/collection] have
 different behavior from their @racketmodname[racket/base] equivalents. When calling a function on a
 collection in @racketmodname[racket/base], there is a guarantee on the type of collection recieved as
 a result. With generic collections, there is often no such guarantee.

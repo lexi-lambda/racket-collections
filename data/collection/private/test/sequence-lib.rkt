@@ -2,7 +2,7 @@
 
 (require
   rackunit
-  alexis/collection
+  data/collection
   racket/function
   racket/stream
   racket/port)
