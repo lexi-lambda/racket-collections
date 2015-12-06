@@ -5,6 +5,7 @@
   racket/contract
   racket/generic
   racket/function
+  unstable/function
   racket/stream
   racket/set)
 
