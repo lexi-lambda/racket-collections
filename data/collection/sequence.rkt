@@ -3,16 +3,11 @@
 ;; This contains the implementation for derived sequence functions that have no need to access the
 ;; internal representation of the underlying interfaces.
 
-(require
-  (prefix-in b: racket/list)
-  data/collection/collection
-  data/collection/countable
-  data/collection/contract
-  alexis/util/match
-  racket/generic
-  racket/contract
-  racket/stream
-  racket/generator)
+(require racket/require
+         (multi-in data/collection [collection contract countable])
+         (multi-in racket [contract generator generic stream])
+         (prefix-in b: racket/list)
+         match-plus)
 
 (provide
  (rename-out [in-naturals naturals]

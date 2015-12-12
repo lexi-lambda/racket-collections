@@ -1,11 +1,10 @@
 #lang racket/base
 
-(require
-  rackunit
-  data/collection
-  alexis/util/match
-  racket/generic
-  racket/dict)
+(require rackunit
+         data/collection
+         match-plus
+         racket/generic
+         racket/dict)
 
 (struct my-dict (assocs)
   #:transparent

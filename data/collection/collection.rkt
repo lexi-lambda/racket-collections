@@ -3,28 +3,14 @@
 ;; This contains the base implementations for gen:collection and gen:sequence, as well as some derived
 ;; functions to operate on them.
 
-(require (for-syntax racket/base
+(require racket/require
+         (for-syntax racket/base
                      syntax/parse)
-         racket/lazy-require
-         racket/generic
-         racket/contract
-         racket/generator
-         racket/function
-         racket/match
-         alexis/util/match
+         (multi-in racket [contract function generator generic lazy-require match])
+         (prefix-in b: (multi-in racket [base dict list set stream vector]))
+         (prefix-in u: (multi-in unstable [function list]))
          alexis/util/renamed
-         (prefix-in
-          b: (combine-in
-              racket/base
-              racket/list
-              racket/vector
-              racket/set
-              racket/stream
-              racket/dict))
-         (prefix-in
-          u: (combine-in
-              unstable/function
-              unstable/list))
+         match-plus
          "countable.rkt"
          "private/util.rkt")
 

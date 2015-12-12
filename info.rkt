@@ -8,6 +8,7 @@
 (define deps
   '("alexis-util"
     ["base" "6.2"]
+    "match-plus"
     "rackunit-lib"
     "unstable-list-lib"))
 (define build-deps

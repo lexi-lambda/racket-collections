@@ -1,10 +1,9 @@
 #lang racket/base
 
-(require data/collection/collection
-         data/collection/countable
-         alexis/util/match
-         racket/generic
-         racket/contract)
+(require racket/require
+         (multi-in data/collection [collection countable])
+         (multi-in racket [contract generic])
+         match-plus)
 
 (provide
  (contract-out
