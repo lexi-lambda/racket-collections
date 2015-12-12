@@ -22,7 +22,9 @@
               racket/stream
               racket/dict))
          (prefix-in
-          u: racket/list)
+          u: (combine-in
+              unstable/function
+              unstable/list))
          "countable.rkt"
          "private/util.rkt")
 
@@ -179,17 +181,17 @@
   #:defaults
   ([list?
     (define (conj lst item) (cons item lst))]
-   [(conjoin vector? immutable?)
+   [(u:conjoin vector? immutable?)
     (define (conj vec item)
       (b:vector->immutable-vector
        (b:vector-append vec (b:vector item))))]
-   [(conjoin hash? immutable?)
+   [(u:conjoin hash? immutable?)
     (define/contract (conj hsh item)
       ((and/c hash? immutable?) pair? . -> . (and/c hash? immutable?))
       (hash-set hsh (car item) (cdr item)))]
    [b:set?
     (define conj b:set-add)]
-   [(conjoin b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?)
+   [(u:conjoin b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?)
     (define/contract (conj dct item)
       ((and/c b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?)
        pair? . -> . (and/c b:dict? (negate b:dict-mutable?) b:dict-can-functional-set?))
@@ -230,7 +232,7 @@
     (define set-nth u:list-set)
     (define update-nth u:list-update)])
   #:defaults
-  ([(conjoin vector? immutable?)
+  ([(u:conjoin vector? immutable?)
     (define nth vector-ref)
     (define (set-nth vec i v)
       (let ([copy (b:vector-copy vec)])
@@ -242,7 +244,7 @@
     (define first b:stream-first)
     (define rest b:stream-rest)
     (define reverse stream-reverse)]
-   [(conjoin hash? immutable?)
+   [(u:conjoin hash? immutable?)
     (define empty? hash-empty?)
     (define hash->stream (compose1 b:sequence->stream b:in-hash-pairs))
     (define first (compose1 b:stream-first hash->stream))
@@ -253,17 +255,17 @@
     (define first (compose1 b:stream-first b:set->stream))
     (define rest (compose1 b:stream-rest b:set->stream))
     (define reverse (compose1 stream-reverse b:set->stream))]
-   [(conjoin b:dict? (negate b:dict-mutable?))
+   [(u:conjoin b:dict? (negate b:dict-mutable?))
     (define empty? b:dict-empty?)
     (define first (compose1 b:stream-first b:sequence->stream b:in-dict-pairs))
     (define rest (compose1 b:stream-rest b:sequence->stream b:in-dict-pairs))
     (define reverse (compose1 stream-reverse b:sequence->stream b:in-dict-pairs))]
-   [(conjoin string? immutable?)
+   [(u:conjoin string? immutable?)
     (define nth string-ref)
     (define rest (compose1 b:stream-rest b:sequence->stream in-string))
     (define reverse (compose1 sequence->string stream-reverse b:sequence->stream in-string))
     (define (random-access? s) #t)]
-   [(conjoin bytes? immutable?)
+   [(u:conjoin bytes? immutable?)
     (define nth bytes-ref)
     (define rest (compose1 b:stream-rest b:sequence->stream in-bytes))
     (define reverse (compose1 stream-reverse b:sequence->stream in-bytes))
@@ -279,7 +281,7 @@
      (λ (val)
        (cond
          [(sequence? val) val]
-         [((disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?) val)
+         [((u:disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?) val)
           (raise-blame-error
            blame val
            '(expected: "sequence?, which must be immutable" given: "~e, which is mutable") val)]
@@ -295,7 +297,7 @@
      (λ (val)
        (cond
          [(collection? val) val]
-         [((disjoin vector? hash? b:set-mutable? b:set-weak? b:dict?) val)
+         [((u:disjoin vector? hash? b:set-mutable? b:set-weak? b:dict?) val)
           (raise-blame-error
            blame val
            '(expected: "collection?, which must be immutable" given: "~e, which is mutable") val)]

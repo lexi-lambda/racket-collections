@@ -6,7 +6,8 @@
   racket/generic
   racket/function
   racket/stream
-  racket/set)
+  racket/set
+  unstable/function)
 
 (provide
  (contract-out

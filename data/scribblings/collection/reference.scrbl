@@ -226,8 +226,7 @@ performant version of @racket[sequence->collection].
 
 @(coll-examples
   (reverse #(2 1))
-  (eval:alts (collection? (reverse #(2 1)))
-             (eval:check (collection? (reverse #(2 1))) #f))
+  (collection? (reverse #(2 1)))
   (sequence->collection (reverse #(2 1)))
   (sequence->list (conj (sequence->collection (reverse #(2 1))) 3)))}
 
