@@ -19,8 +19,8 @@ before_install:
   - export PATH="${RACKET_DIR}/bin:${PATH}"
 
 install:
-  - raco pkg install --deps search-auto --name collections --link $TRAVIS_BUILD_DIR
-  - raco pkg install cover cover-coveralls
+  - raco pkg install --auto --name collections --link $TRAVIS_BUILD_DIR
+  - raco pkg install --auto cover cover-coveralls
 
 script:
   - raco test -p collections
