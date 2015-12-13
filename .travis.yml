@@ -23,7 +23,7 @@ install:
   - raco pkg install --auto cover cover-coveralls
 
 script:
-  - raco test -p collections
+  - raco test -ep collections
   - raco cover -bf coveralls -d $TRAVIS_BUILD_DIR/coverage -p collections
 
 after_success:
