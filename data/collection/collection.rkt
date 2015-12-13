@@ -9,8 +9,8 @@
          (multi-in racket [contract function generator generic lazy-require match])
          (prefix-in b: (multi-in racket [base dict list set stream vector]))
          (prefix-in u: (multi-in unstable [function list]))
-         alexis/util/renamed
          match-plus
+         static-rename
          "countable.rkt"
          "private/util.rkt")
 
