@@ -7,7 +7,8 @@
                 racket/base
                 racket/list
                 racket/set
-                racket/dict)
+                racket/dict
+                racket/math)
                data/collection)
               (prefix-in base: racket/base)
               data/collection
@@ -279,6 +280,20 @@ sequence, but @racket[append] cannot.
   (append* (stream '(1 2) '(3 4)))
   (sequence->list (append* (stream '(1 2) '(3 4))))
   (sequence->list (append* (stream (hash 'a 'b) (set 'c 'd)))))}
+
+@defproc*[([(build-sequence [proc (exact-nonnegative-integer? . -> . any/c)]) sequence?]
+           [(build-sequence [n exact-nonnegative-integer?]
+                            [proc (exact-nonnegative-integer? . -> . any/c)]) sequence?])]{
+Lazily constructs a sequence where each value is produced by calling @racket[proc] with the index of
+the element to be produced. That is, @racket[build-sequence] creates a sequence, @racket[_seq], such
+that @racket[(nth _seq _i)] is equal to @racket[(proc _i)] for all valid values of @racket[_i].
+
+By default, @racket[build-sequence] produces an infinite sequence. If @racket[n] is provided, then the
+result is limited to @racket[n] elements; it is equivalent to @racket[(take n (build-sequence proc))].
+
+@(coll-examples
+  (sequence->list (build-sequence 5 values))
+  (sequence->list (subsequence (build-sequence sqr) 5 10)))}
 
 @defproc[(repeat [val any/c]) sequence?]{
 Creates an infinite sequence simply containing @racket[val] repeated infinitely.

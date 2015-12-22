@@ -30,6 +30,9 @@
                    #:rest [seqs (non-empty-listof sequence?)]
                    [result sequence?])]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
+  [build-sequence (case-> ((exact-nonnegative-integer? . -> . any/c) . -> . sequence?)
+                          (exact-nonnegative-integer? (exact-nonnegative-integer? . -> . any/c)
+                                                      . -> . sequence?))]
   [repeat (any/c . -> . sequence?)]
   [cycle ((and/c sequence? (not/c empty?)) . -> . sequence?)]
   [take (exact-nonnegative-integer? sequence? . -> . sequence?)]
@@ -90,6 +93,17 @@
           (if (empty? next)
               (first seq)
               (loop next))))))
+
+; indexed sequence constructor
+(define build-sequence
+  (case-lambda
+    [(proc)
+     (let loop ([i 0])
+       (stream-cons (proc i) (loop (add1 i))))]
+    [(n proc)
+     (let loop ([i 0])
+       (if (= i n) empty-stream
+           (stream-cons (proc i) (loop (add1 i)))))]))
 
 ; wrapper for ‘repeat’
 (struct single-value-seq (val)

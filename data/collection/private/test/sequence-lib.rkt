@@ -33,6 +33,16 @@
  (check-equal? (reverse (extend '() (subsequence (in-naturals) 1 5))) '(1 2 3 4)))
 
 (test-case
+ "Indexed sequence construction"
+ (check-equal? (sequence->list (take 5 (build-sequence values))) '(0 1 2 3 4))
+ (check-equal? (sequence->list (take 5 (build-sequence add1))) '(1 2 3 4 5))
+ (check-equal? (sequence->list (take 5 (build-sequence (λ _ 'a)))) '(a a a a a))
+
+ (check-equal? (sequence->list (build-sequence 5 values)) '(0 1 2 3 4))
+ (check-equal? (sequence->list (build-sequence 5 add1)) '(1 2 3 4 5))
+ (check-equal? (sequence->list (build-sequence 5 (λ _ 'a))) '(a a a a a)))
+
+(test-case
  "Infinite sequence constructors"
  (check-equal? (first (repeat 'foo)) 'foo)
  (check-equal? (nth (repeat 'foo) 10000) 'foo)
