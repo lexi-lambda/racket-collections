@@ -208,7 +208,7 @@
    (define sequence->collection -sequence->collection)
    (define (random-access? seq) #f)]
   #:derive-property prop:sequence (λ (s) (in s))
-  #:fast-defaults
+  #:defaults
   ([list?
     (define empty? b:null?)
     (define first b:car)
@@ -216,9 +216,8 @@
     (define reverse b:reverse)
     (define nth list-ref)
     (define set-nth u:list-set)
-    (define update-nth u:list-update)])
-  #:defaults
-  ([(u:conjoin vector? immutable?)
+    (define update-nth u:list-update)]
+   [(u:conjoin vector? immutable?)
     (define nth vector-ref)
     (define (set-nth vec i v)
       (let ([copy (b:vector-copy vec)])

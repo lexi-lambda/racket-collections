@@ -18,11 +18,10 @@
   (known-finite? countable)
   #:fallbacks
   [(define (known-finite? c) #f)]
-  #:fast-defaults
-  ([list? (define length b:length)
-          (define (known-finite? c) #t)])
   #:defaults
-  ([vector? (define length vector-length)
+  ([list? (define length b:length)
+          (define (known-finite? c) #t)]
+   [vector? (define length vector-length)
             (define (known-finite? c) #t)]
    [string? (define length string-length)
             (define (known-finite? c) #t)]
