@@ -44,6 +44,7 @@
   [subsequence* (sequence? exact-nonnegative-integer? exact-nonnegative-integer? . -> . sequence?)]
   [append* ([] #:rest (non-empty-listof sequence?) . ->* . sequence?)]
   [flatten (sequence? . -> . sequence?)]
+  [indexed (sequence? . -> . sequence?)]
   [chunk (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [chunk* (exact-nonnegative-integer? sequence? . -> . sequence?)]
   [cartesian-product ([] #:rest (listof sequence?) . ->* . (sequenceof sequence?))]
@@ -250,6 +251,12 @@
          [else
           (for-each yield (apply proc (map first seqs*)))
           (loop (map rest seqs*))])))))
+
+; maps over a sequence and creates pairs of each element and its index in the sequence
+(define (indexed seq)
+  (for/sequence ([x (in seq)]
+                 [i (in-naturals)])
+    (cons i x)))
 
 ; groups sequences into subsequences of length ‘n’
 (define (chunk n seq)

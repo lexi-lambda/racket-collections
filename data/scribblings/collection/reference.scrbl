@@ -436,6 +436,14 @@ Flattens a potentially nested sequence into a sequence of flat values.
   (sequence->list (flatten '((((()()()))(((()))())))))
   (sixth (flatten (repeat 1))))}
 
+@defproc[(indexed [seq sequence?]) (sequenceof (cons/c exact-nonnegative-integer? any/c))]{
+Lazily produces a new sequence based on @racket[seq], but each element is paired with its index within
+the sequence.
+
+@(coll-examples
+  (sequence->list (indexed '(a b c)))
+  (extend (hash) (indexed '(a b c))))}
+
 @defproc[(chunk [n exact-positive-integer?] [seq sequence?]) (sequenceof sequence?)]{
 Lazily produces a new sequence based on @racket[seq] but with its elements grouped into subsequences
 taken @racket[n] at a time. If the length of @racket[seq] is not evenly divisible by @racket[n], then

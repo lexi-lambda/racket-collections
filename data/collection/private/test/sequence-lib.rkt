@@ -62,6 +62,11 @@
  (check-equal? (second (append-map values (repeat (repeat 1)))) 1))
 
 (test-case
+ "Indexed sequences"
+ (check-equal? (sequence->list (indexed '(a b c))) '((0 . a) (1 . b) (2 . c)))
+ (check-equal? (extend (hash) (indexed '(a b c))) #hash((0 . a) (1 . b) (2 . c))))
+
+(test-case
  "Sequence chunking"
  (check-equal? (sequence->list* (chunk 2 (range 10))) '((0 1) (2 3) (4 5) (6 7) (8 9)))
  (check-equal? (sequence->list* (chunk 3 (range 10))) '((0 1 2) (3 4 5) (6 7 8) (9)))
