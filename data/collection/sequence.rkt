@@ -29,6 +29,10 @@
                                         (unconstrained-domain-> sequence?))])
                    #:rest [seqs (non-empty-listof sequence?)]
                    [result sequence?])]
+  [first-by ((any/c any/c . -> . any/c) (any/c . -> . any/c) (and/c sequence? (not/c empty?))
+                                        . -> . any/c)]
+  [find-min ((any/c . -> . real?) (and/c sequence? (not/c empty?)) . -> . any/c)]
+  [find-max ((any/c . -> . real?) (and/c sequence? (not/c empty?)) . -> . any/c)]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
   [build-sequence (case-> ((exact-nonnegative-integer? . -> . any/c) . -> . sequence?)
                           (exact-nonnegative-integer? (exact-nonnegative-integer? . -> . any/c)
@@ -83,6 +87,21 @@
   (apply foldl (λ (acc . vals) (and acc (apply proc vals))) #t seqs))
 (define (ormap proc . seqs)
   (apply foldl (λ (acc . vals) (or acc (apply proc vals))) #f seqs))
+
+(define (first-by <? proc seq)
+  (define-values [v x]
+    (for/fold ([v (first seq)] [x (proc (first seq))]) ([v2 (in (rest seq))])
+      (define x2 (proc v2))
+      (if (<? x2 x)
+          (values v2 x2)
+          (values v x))))
+  v)
+
+(define (find-min proc seq)
+  (first-by < proc seq))
+
+(define (find-max proc seq)
+  (first-by > proc seq))
 
 ; get the end of a finite sequence
 (define (last seq)
