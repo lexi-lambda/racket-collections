@@ -35,6 +35,9 @@
                    #:rest [seqs (non-empty-listof sequence?)]
                    [result sequence?])]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
+  [index-of ([sequence? any/c] [(any/c any/c . -> . any/c)]
+                               . ->* . (or/c exact-nonnegative-integer? #f))]
+  [index-where (sequence? (any/c . -> . any/c) . -> . (or/c exact-nonnegative-integer? #f))]
   [build-sequence (case-> ((exact-nonnegative-integer? . -> . any/c) . -> . sequence?)
                           (exact-nonnegative-integer? (exact-nonnegative-integer? . -> . any/c)
                                                       . -> . sequence?))]
@@ -123,6 +126,16 @@
           (if (empty? next)
               (first seq)
               (loop next))))))
+
+; index-searching functions for sequences
+(define (index-of seq x [=? equal?])
+  (for/or ([y (in seq)]
+           [i (in-naturals)])
+    (and (=? y x) i)))
+(define (index-where seq proc)
+  (for/or ([y (in seq)]
+           [i (in-naturals)])
+    (and (proc y) i)))
 
 ; indexed sequence constructor
 (define build-sequence

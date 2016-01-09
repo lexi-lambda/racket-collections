@@ -437,6 +437,27 @@ together using @racket[or] like @racket[foldl].
   (ormap symbol? '(1 a 3 4))
   (ormap values '(#f a #f #f)))}
 
+@defproc[(index-of [seq sequence?] [v any/c] [is-equal? (any/c any/c . -> . any/c) equal?])
+         (or/c any/c #f)]{
+Retrieves the index of the first element @racket[_x] of @racket[seq] for which
+@racket[(is-equal? _x v)] is not @racket[#f]. If no such value exists, this function returns
+@racket[#f].
+
+@(coll-examples
+  (index-of '(a b c) 'b)
+  (index-of '(a b c) 'd)
+  (index-of '(1 2 3) 2.0)
+  (index-of '(1 2 3) 2.0 =))}
+
+@defproc[(index-where [seq sequence?] [proc (any/c . -> . any/c)]) (or/c any/c #f)]{
+Retrieves the index of the first element @racket[_x] of @racket[seq] for which
+@racket[(proc _x)] is not @racket[#f]. If no such value exists, this function returns @racket[#f].
+
+@(coll-examples
+  (index-where '(1 2 3) positive?)
+  (index-where '(-1 2 3) positive?)
+  (index-where '(-1 -2 -3) positive?))}
+
 @defproc[(flatten [s sequence?]) sequence?]{
 Flattens a potentially nested sequence into a sequence of flat values.
 

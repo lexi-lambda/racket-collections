@@ -50,6 +50,16 @@
  (check-equal? (reverse (extend '() (subsequence (in-naturals) 1 5))) '(1 2 3 4)))
 
 (test-case
+ "Finding element indicies"
+ (check-equal? (index-of '(1 2 3) 2) 1)
+ (check-equal? (index-of '(1 2 3) 4) #f)
+ (check-equal? (index-of '(1 2 3) 2 (const #f)) #f)
+
+ (check-equal? (index-where '(1 2 3) positive?) 0)
+ (check-equal? (index-where '(-1 2 3) positive?) 1)
+ (check-equal? (index-where '(-1 -2 -3) positive?) #f))
+
+(test-case
  "Indexed sequence construction"
  (check-equal? (sequence->list (take 5 (build-sequence values))) '(0 1 2 3 4))
  (check-equal? (sequence->list (take 5 (build-sequence add1))) '(1 2 3 4 5))
