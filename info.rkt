@@ -3,7 +3,7 @@
 (define collection 'multi)
 
 (define name "collections")
-(define version "1.0")
+(define version "1.1")
 
 (define deps
   '(["base" "6.2"]

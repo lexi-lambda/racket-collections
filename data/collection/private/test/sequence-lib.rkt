@@ -15,6 +15,23 @@
   "01234"))
 
 (test-case
+ "Lazy fold steps"
+ (check-equal? (sequence->list (foldl/steps conj #() '(1 2 3))) '(#() #(1) #(1 2) #(1 2 3)))
+ (check-equal? (sequence->list (foldl/steps list '() '(1 2) '(3 4))) '(() (() 1 3) ((() 1 3) 2 4)))
+ (check-equal? (with-output-to-string
+                (thunk (foldl/steps (λ (_ n) (display n)) (void) '(1 2 3))))
+               "")
+ (check-equal? (with-output-to-string
+                (thunk (first (foldl/steps (λ (_ n) (display n)) (void) '(1 2 3)))))
+               "")
+ (check-equal? (with-output-to-string
+                (thunk (second (foldl/steps (λ (_ n) (display n)) (void) '(1 2 3)))))
+               "1")
+ (check-equal? (with-output-to-string
+                (thunk (sequence->list (foldl/steps (λ (_ n) (display n)) (void) '(1 2 3)))))
+               "123"))
+
+(test-case
  "Logical fold abbreviations"
  (check-equal? (andmap symbol? '(a 1 c d)) #f)
  (check-equal? (andmap symbol? '(a b c d)) #t)

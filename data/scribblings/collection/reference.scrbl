@@ -405,6 +405,16 @@ not last.
   (foldl cons null (set 1 2 3 4))
   (foldl (λ (a b) (cons b a)) null (set 1 2 3 4)))}
 
+@defproc[(foldl/steps [proc procedure?] [init any/c] [seq sequence?] ...+) sequence?]{
+Like @racket[foldl], but instead of producing a single result, lazily produces a sequence containing
+each step of the reduction, starting with @racket[init].
+
+@(coll-examples
+  (sequence->list (foldl/steps + 0 '(1 3 7)))
+  (sequence->list (foldl/steps conj #() '(a b c)))
+  (let ([factorials (foldl/steps * 1 (naturals 1))])
+    (nth factorials 6)))}
+
 @defproc[(for-each [proc procedure?] [seq sequence?] ...+) void?]{
 Applies @racket[proc] over the @racket[seq] arguments just like @racket[map], but does so strictly and
 does not return a sequence. Instead, it simply returns @|void-const|.}

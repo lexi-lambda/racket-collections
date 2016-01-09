@@ -17,6 +17,11 @@
                                       (unconstrained-domain-> any/c))])
                  #:rest [seqs (non-empty-listof sequence?)]
                  [result void?])]
+  [foldl/steps (->i ([proc (seqs) (and/c (procedure-arity-includes/c (add1 (length seqs)))
+                                         (unconstrained-domain-> any/c))]
+                     [init any/c])
+                    #:rest [seqs (non-empty-listof sequence?)]
+                    [result sequence?])]
   [andmap (->i ([proc (seqs) (and/c (procedure-arity-includes/c (length seqs))
                                     (unconstrained-domain-> any/c))])
                #:rest [seqs (non-empty-listof sequence?)]
@@ -77,6 +82,30 @@
          [else
           (apply proc (map first seqs*))
           (loop (map rest seqs*))]))]))
+
+; like foldl, but lazily produces each step of the reduction
+(define foldl/steps
+  (case-lambda
+    [(proc init seq)
+     (let loop ([init* init]
+                [seq* seq])
+       (stream-cons init*
+                    (if (empty? seq*)
+                        empty-stream
+                        (loop (proc init* (first seq*)) (rest seq*)))))]
+    [(proc init . seqs)
+     (let loop ([init* init]
+                [seqs* seqs])
+       (stream-cons init*
+                    (cond
+                      [(andmap empty? seqs*) empty-stream]
+                      [(ormap empty? seqs*)
+                       (raise-arguments-error
+                        'foldl/steps "all sequences must have the same length"
+                        "proc" proc
+                        "init" init
+                        "sequences" seqs)]
+                      [else (loop (apply proc init* (map first seqs*)) (map rest seqs*))])))]))
 
 ; boolean folds for arbitrary sequences
 (define (andmap proc . seqs)
