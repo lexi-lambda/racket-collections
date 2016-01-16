@@ -11,6 +11,7 @@
          (prefix-in u: (multi-in unstable [function list]))
          match-plus
          static-rename
+         kw-utils/kw-hash/contract
          "countable.rkt"
          "private/util.rkt")
 
@@ -48,7 +49,7 @@
                                     #:rest (tuple-listof exact-nonnegative-integer?
                                                          (any/c . -> . any/c))
                                     . ->* . sequence?*)]
-  [apply ([procedure?] #:rest (list-ending-with sequence?*) . ->* . any)]
+  [apply ([procedure?] #:rest (list-ending-with sequence?*) #:kws any/c . kw-hash-> . any)]
   [append ([] #:rest (listof sequence?*) . ->* . sequence?*)]
   [filter ((any/c . -> . any/c) sequence?* . -> . sequence?*)]
   [map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (b:length seqs))
