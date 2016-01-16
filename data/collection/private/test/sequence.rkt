@@ -61,11 +61,11 @@
 
 (test-case
  "Sequence-based application"
- (check-equal? (apply +) 0)
  (check-equal? (apply + #(1 1 1)) 3)
  (check-equal? (apply + 1 1 #(1)) 3)
  (check-equal? (apply string-replace #("foo" "o" "a")) "faa")
  (check-equal? (apply string-replace #:all? #f #("foo" "o" "a")) "fao")
+ (check-exn exn:fail:contract? (thunk (apply +)))
  (check-exn exn:fail:contract? (thunk (apply 'not-a-fn #())))
  (check-exn exn:fail:contract? (thunk (apply + 'not-a-seq)))
  (check-exn exn:fail:contract? (thunk (apply)))
@@ -125,7 +125,8 @@
  (check-exn #rx"which is mutable" (thunk (empty? (vector))))
  (check-exn #rx"which is mutable" (thunk (empty? (make-hash))))
  (check-exn #rx"which is mutable" (thunk (empty? (mutable-set))))
- (check-exn #rx"expected: sequence\\?\n" (thunk (empty? 'not-a-sequence))))
+ (check-exn #rx"expected: sequence\\?\n" (thunk (empty? 'not-a-sequence)))
+ (check-exn #rx"which is mutable" (thunk (apply + (vector 1 2 3)))))
 
 (test-case
  "Good error messages for finite sequences"
