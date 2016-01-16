@@ -257,6 +257,9 @@
     (define (random-access? b) #t)]))
 
 ; create custom flat contracts to provide nice error messages for mutable builtins
+(define possibly-mutable-sequence?
+  (u:disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?))
+
 (define sequence?*
   (make-flat-contract
    #:name 'sequence?
@@ -266,7 +269,7 @@
      (λ (val)
        (cond
          [(sequence? val) val]
-         [((u:disjoin vector? hash? b:set-mutable? b:set-weak? b:dict? string? bytes?) val)
+         [(possibly-mutable-sequence? val)
           (raise-blame-error
            blame val
            '(expected: "sequence?, which must be immutable" given: "~e, which is mutable") val)]
@@ -288,6 +291,13 @@
            '(expected: "collection?, which must be immutable" given: "~e, which is mutable") val)]
          [else
           (raise-blame-error blame val '(expected: "collection?" given: "~e") val)])))))
+
+; a slightly hacky wrapper which allows adding the ", which is mutable" error context string when
+; providing argument values to raise-argument-error
+(struct which-is-mutable (val)
+  #:methods gen:custom-write
+  [(define/match* (write-proc (which-is-mutable val) port mode)
+     (fprintf port "~e, which is mutable" val))])
 
 ;; utility implementations
 ;; ---------------------------------------------------------------------------------------------------
@@ -311,13 +321,19 @@
 
 ; validates the arguments passed to apply and converts the final argument to a list from a sequence
 (define (parse-apply-arguments args)
-  (define fn (first args))
+  (define fn (b:first args))
   (when (not (procedure? fn))
     (b:apply raise-argument-error 'apply "procedure?" 0 args))
-  (define main-args (rest args))
+  (define main-args (b:rest args))
+  (when (b:empty? main-args)
+    (apply raise-arity-error 'apply (arity-at-least 2) args))
   (define-values (init last) (b:split-at main-args (sub1 (length main-args))))
   (when (not (sequence? (b:first last)))
-    (b:apply raise-argument-error 'apply "sequence?" (sub1 (length main-args)) args))
+    (if (possibly-mutable-sequence? (b:first last))
+        (b:apply raise-argument-error 'apply
+                 "sequence?, which must be immutable" (sub1 (length args))
+                 (b:cons fn (b:append init (list (which-is-mutable (b:first last))))))
+        (b:apply raise-argument-error 'apply "sequence?" (sub1 (length args)) args)))
   (define last* (reverse (extend '() (b:first last))))
   (values fn (b:append init (list last*))))
 
@@ -325,10 +341,8 @@
 (define/renamed apply (apply/basic . args)
   (when (b:empty? args)
     (b:apply raise-arity-error 'apply (arity-at-least 1) args))
-  (if (= (b:length args) 1)
-      ((b:first args))
-      (let-values ([(fn args) (parse-apply-arguments args)])
-        (b:apply b:apply fn args))))
+  (let-values ([(fn args) (parse-apply-arguments args)])
+    (b:apply b:apply fn args)))
 
 ; implementation of apply when keyword arguments are supplied
 (define (apply/kws kws kw-vals . args)
