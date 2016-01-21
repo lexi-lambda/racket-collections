@@ -10,6 +10,7 @@
     "match-plus"
     "rackunit-lib"
     "static-rename"
+    "kw-utils"
     "unstable-list-lib"))
 (define build-deps
   '("racket-doc"

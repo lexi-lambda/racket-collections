@@ -11,6 +11,7 @@
          (prefix-in u: (multi-in unstable [function list]))
          match-plus
          static-rename
+         kw-utils/kw-hash/contract
          "countable.rkt"
          "private/util.rkt")
 
@@ -22,7 +23,7 @@
 (provide
  gen:collection (rename-out [collection?* collection?]) collection/c
  gen:sequence (rename-out [sequence?* sequence?]) sequence/c
- apply in for/sequence for*/sequence for/sequence/derived for*/sequence/derived
+ in for/sequence for*/sequence for/sequence/derived for*/sequence/derived
  (contract-out
   ; gen:collection
   [extend (collection?* sequence?* . -> . collection?*)]
@@ -48,6 +49,7 @@
                                     #:rest (tuple-listof exact-nonnegative-integer?
                                                          (any/c . -> . any/c))
                                     . ->* . sequence?*)]
+  [apply ([procedure?] #:rest (list-ending-with sequence?*) #:kws any/c . kw-hash-> . any)]
   [append ([] #:rest (listof sequence?*) . ->* . sequence?*)]
   [filter ((any/c . -> . any/c) sequence?* . -> . sequence?*)]
   [map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (b:length seqs))
@@ -312,12 +314,8 @@
 ; validates the arguments passed to apply and converts the final argument to a list from a sequence
 (define (parse-apply-arguments args)
   (define fn (first args))
-  (when (not (procedure? fn))
-    (b:apply raise-argument-error 'apply "procedure?" 0 args))
   (define main-args (rest args))
   (define-values (init last) (b:split-at main-args (sub1 (length main-args))))
-  (when (not (sequence? (b:first last)))
-    (b:apply raise-argument-error 'apply "sequence?" (sub1 (length main-args)) args))
   (define last* (reverse (extend '() (b:first last))))
   (values fn (b:append init (list last*))))
 
