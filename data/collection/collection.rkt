@@ -9,6 +9,7 @@
          (multi-in racket [contract function generator generic lazy-require match])
          (prefix-in b: (multi-in racket [base dict list set stream vector]))
          (prefix-in u: (multi-in unstable [function list]))
+         (submod racket/performance-hint begin-encourage-inline)
          match-plus
          static-rename
          "countable.rkt"
@@ -22,7 +23,7 @@
 (provide
  gen:collection (rename-out [collection?* collection?]) collection/c
  gen:sequence (rename-out [sequence?* sequence?]) sequence/c
- apply in for/sequence for*/sequence for/sequence/derived for*/sequence/derived
+ in for/sequence for*/sequence for/sequence/derived for*/sequence/derived
  (contract-out
   ; gen:collection
   [extend (collection?* sequence?* . -> . collection?*)]
@@ -48,6 +49,7 @@
                                     #:rest (tuple-listof exact-nonnegative-integer?
                                                          (any/c . -> . any/c))
                                     . ->* . sequence?*)]
+  [apply apply/c]
   [append ([] #:rest (listof sequence?*) . ->* . sequence?*)]
   [filter ((any/c . -> . any/c) sequence?* . -> . sequence?*)]
   [map (->i ([proc (seqs) (and/c (procedure-arity-includes/c (b:length seqs))
@@ -309,16 +311,50 @@
 ;; derived functions
 ;; ---------------------------------------------------------------------------------------------------
 
+; helper for make-apply-wrapper
+(begin-encourage-inline
+  (define (contract-positional-args args blame)
+    ; fail fast if the arity is wrong
+    (when (< (b:length args) 2)
+      (apply raise-arity-error 'apply (arity-at-least 2) args))
+
+    ; ensure the first argument is a procedure
+    (define initial (b:first args))
+    (define initial-blame (blame-add-context blame "the first argument of"))
+    (define initial-contracted (((contract-projection procedure?) initial-blame) initial))
+    
+    ; ensure the last argument is a sequence
+    (define-values [middle final] (b:split-at (b:rest args) (- (b:length args) 2)))
+    (define final-blame (blame-add-context blame "the last argument of"))
+    (define final-contracted (((contract-projection sequence?*) final-blame) (car final)))
+
+    ; return all the arguments with contracts properly applied
+    (b:cons initial-contracted (b:append middle (list final-contracted)))))
+
+; creates a wrapper for chaperoning apply
+(define (make-apply-wrapper blame)
+  (make-keyword-procedure
+   (λ (kws kw-vals . args) (b:apply values kw-vals (contract-positional-args args blame)))
+   (λ args                 (b:apply values         (contract-positional-args args blame)))))
+
+; the actual implementation of apply/c
+(define (apply/c-projection blame)
+  (let ([wrapper-fn (make-apply-wrapper (blame-swap blame))])
+    (λ (val) (chaperone-procedure val wrapper-fn))))
+
+; a custom contract for apply to enable using the special sequence?* error message
+(define apply/c
+  (make-chaperone-contract
+   #:name '(-> procedure? any/c ... sequence? any)
+   #:first-order procedure?
+   #:projection apply/c-projection))
+
 ; validates the arguments passed to apply and converts the final argument to a list from a sequence
 (define (parse-apply-arguments args)
-  (define fn (first args))
-  (when (not (procedure? fn))
-    (b:apply raise-argument-error 'apply "procedure?" 0 args))
-  (define main-args (rest args))
+  (define fn (b:first args))
+  (define main-args (b:rest args))
   (define-values (init last) (b:split-at main-args (sub1 (length main-args))))
-  (when (not (sequence? (b:first last)))
-    (b:apply raise-argument-error 'apply "sequence?" (sub1 (length main-args)) args))
-  (define last* (reverse (extend '() (b:first last))))
+  (define last* (sequence->list (b:first last)))
   (values fn (b:append init (list last*))))
 
 ; implementation of apply when no keyword arguments are supplied
