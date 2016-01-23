@@ -359,17 +359,11 @@
 
 ; implementation of apply when no keyword arguments are supplied
 (define/renamed apply (apply/basic . args)
-  (when (b:empty? args)
-    (b:apply raise-arity-error 'apply (arity-at-least 1) args))
-  (if (= (b:length args) 1)
-      ((b:first args))
-      (let-values ([(fn args) (parse-apply-arguments args)])
-        (b:apply b:apply fn args))))
+  (let-values ([(fn args) (parse-apply-arguments args)])
+    (b:apply b:apply fn args)))
 
 ; implementation of apply when keyword arguments are supplied
 (define (apply/kws kws kw-vals . args)
-  (when (b:empty? args)
-    (b:apply raise-arity-error 'apply (arity-at-least 1) args))
   (let-values ([(fn args) (parse-apply-arguments args)])
     (b:apply b:keyword-apply fn kws kw-vals args)))
 
