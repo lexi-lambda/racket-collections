@@ -89,10 +89,22 @@
              (redirect-sequence
               val chaperone?
               values
-              (λ (seq) (values (λ (result) (pos-elem-proj result)) seq))
-              (λ (seq) (values (λ (result) (attach result)) seq))
-              (λ (seq n) (values (λ (result) (pos-elem-proj result)) seq n))
-              (λ (seq) (values (λ (result) (attach result)) seq))
+              (λ (seq) (values (λ (result) (with-continuation-mark
+                                            contract-continuation-mark-key blame
+                                            (pos-elem-proj result)))
+                               seq))
+              (λ (seq) (values (λ (result) (with-continuation-mark
+                                            contract-continuation-mark-key blame
+                                            (attach result)))
+                               seq))
+              (λ (seq n) (values (λ (result) (with-continuation-mark
+                                              contract-continuation-mark-key blame
+                                              (pos-elem-proj result)))
+                                 seq n))
+              (λ (seq) (values (λ (result) (with-continuation-mark
+                                            contract-continuation-mark-key blame
+                                            (attach result)))
+                               seq))
               impersonator-prop:contracted ctc
               impersonator-prop:blame sequence-blame)]))
         attach))))
