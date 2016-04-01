@@ -158,3 +158,15 @@
     (random-seed 0)
     (sequence->list (take 10 (randoms 10 (current-pseudo-random-generator)))))
   '(8 6 2 4 8 4 5 3 2 6)))
+
+(test-case
+ "Total element removal"
+ (check-equal? (sequence->list (remove-all '(a b c d a b d e) 'a)) '(b c d b d e))
+ (check-equal? (sequence->list (remove-all (stream 'a 'b 'c 'd 'a 'b 'd 'e) 'a)) '(b c d b d e))
+ (check-equal? (sequence->list (remove-all #(a b c d a b d e) 'a)) '(b c d b d e)))
+
+(test-case
+ "Single element removal"
+ (check-equal? (sequence->list (remove-first '(a b c d a b d e) 'a)) '(b c d a b d e))
+ (check-equal? (sequence->list (remove-first '(a b c d a b d e) 'f)) '(a b c d a b d e))
+ (check-equal? (remove-first '(a b c d a b d e) 'f equal? (thunk #f)) #f))

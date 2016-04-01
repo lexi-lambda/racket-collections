@@ -3,10 +3,11 @@
 (define collection 'multi)
 
 (define name "collections")
-(define version "1.1")
+(define version "1.2")
 
 (define deps
   '(["base" "6.2"]
+    "curly-fn"
     "match-plus"
     "rackunit-lib"
     "static-rename"

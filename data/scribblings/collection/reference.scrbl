@@ -12,6 +12,7 @@
                data/collection)
               (prefix-in base: racket/base)
               data/collection
+              racket/function
               racket/generic
               racket/contract
               racket/stream
@@ -496,6 +497,40 @@ Retrieves the index of the first element @racket[_x] of @racket[seq] for which
   (index-where '(1 2 3) positive?)
   (index-where '(-1 2 3) positive?)
   (index-where '(-1 -2 -3) positive?))}
+
+@defproc*[([(remove-first [seq sequence?]
+                          [val any/c]
+                          [=? (any/c any/c . -> . any/c) equal?])
+            sequence?]
+           [(remove-first [seq sequence?]
+                          [val any/c]
+                          [=? (any/c any/c . -> . any/c)]
+                          [failure-thunk (-> any/c)])
+            any/c])]{
+Returns a new sequence like @racket[seq], but with the first ocurrence of an element equal to
+@racket[val] omitted, as determined by @racket[=?]. By default, if no such element exists,
+@racket[seq] is returned unmodified. Alternatively, a @racket[failure-thunk] may be provided, which
+will be invoked if no equal element exists to produce a return value.
+
+Importantly, if no @racket[failure-thunk] is provided, @racket[remove-first] will be @emph{lazy} in
+its production of a new sequence. However, if @racket[failure-thunk] @emph{is} provided,
+@racket[remove-first] will be strict. This is necessary because the result may not be a sequence, and
+a non-sequence value must be returned strictly in ordinary Racket.
+
+@(coll-examples
+  (sequence->list (remove-first '(a b c a b c) 'a))
+  (sequence->list (remove-first '(1 2 3 1 2 3) 1.0))
+  (sequence->list (remove-first '(1 2 3 1 2 3) 1.0 =))
+  (remove-first '(1 2 3 1 2 3) 1.0 equal? (thunk #f)))}
+
+@defproc[(remove-all [seq sequence?] [val any/c] [=? (any/c any/c . -> . any/c) equal?]) sequence?]{
+Lazily produces a new sequence like @racket[seq], but with all elements equal to @racket[val] omitted,
+as determined by @racket[=?].
+
+@(coll-examples
+  (sequence->list (remove-all '(a b c a b c) 'a))
+  (sequence->list (remove-all '(1 2 3 1 2 3) 1.0))
+  (sequence->list (remove-all '(1 2 3 1 2 3) 1.0 =)))}
 
 @defproc[(flatten [s sequence?]) sequence?]{
 Flattens a potentially nested sequence into a sequence of flat values.

@@ -1,11 +1,11 @@
-#lang racket/base
+#lang curly-fn racket/base
 
 ;; This contains the implementation for derived sequence functions that have no need to access the
 ;; internal representation of the underlying interfaces.
 
 (require racket/require
          (multi-in data/collection [collection contract countable])
-         (multi-in racket [contract generator generic stream])
+         (multi-in racket [contract function generator generic stream])
          (prefix-in b: racket/list)
          match-plus)
 
@@ -39,6 +39,8 @@
                   any/c)]
   [find-min (->* [(and/c sequence? (not/c empty?))] [#:key (any/c . -> . real?)] any/c)]
   [find-max (->* [(and/c sequence? (not/c empty?))] [#:key (any/c . -> . real?)] any/c)]
+  [remove-all (->* [sequence? any/c] [(any/c any/c . -> . any/c)] sequence?)]
+  [remove-first (->* [sequence? any/c] [(any/c any/c . -> . any/c) (-> any/c)] any/c)]
   [last ((and/c sequence? (not/c empty?)) . -> . any)]
   [index-of ([sequence? any/c] [(any/c any/c . -> . any/c)]
                                . ->* . (or/c exact-nonnegative-integer? #f))]
@@ -138,6 +140,32 @@
   (find-best seq < #:key extract-key))
 (define (find-max seq #:key [extract-key values])
   (find-best seq > #:key extract-key))
+
+; total sequence element removal helper
+(define (remove-all seq val [=? equal?])
+  (filter #{not (=? val %)} seq))
+
+; single element removal helper
+(define remove-first
+  (case-lambda
+    [(seq val) (remove-first seq val equal?)]
+    ; if no failure-thunk is provided, we can be lazy
+    [(seq val =?)
+     (let loop ([seq seq])
+       (if (empty? seq)
+           seq
+           (if (=? (first seq) val)
+               (rest seq)
+               (stream-cons (first seq) (loop (rest seq))))))]
+    ; if a failure-thunk is provided, we need to be strict
+    [(seq val =? failure-thunk)
+     (let loop ([seq seq]
+                [result '()])
+       (if (empty? seq)
+           (failure-thunk)
+           (if (=? (first seq) val)
+               (append (reverse result) (rest seq))
+               (loop (rest seq) (cons (first seq) result)))))]))
 
 ; get the end of a finite sequence
 (define (last seq)
