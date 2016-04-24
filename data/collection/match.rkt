@@ -5,11 +5,22 @@
               racket/list
               syntax/parse
               syntax/parse/experimental/template)
+  data/collection/countable
   data/collection/collection
   data/collection/sequence
   racket/match)
 
 (provide sequence)
+
+(define ((length-at-least n) seq)
+  (if (and (countable? seq)
+           (known-finite? seq))
+      (>= (length seq) n)
+      (let loop ([n n]
+                 [seq seq])
+        (cond [(zero? n) #t]
+              [(empty? seq) #f]
+              [else (loop (sub1 n) (rest seq))]))))
 
 (define-match-expander sequence
   (λ (stx)
@@ -37,9 +48,9 @@
           (with-syntax ([(init-pat ...) init-pats]
                         [last-pat (last (syntax->list #'(svp.pat ...)))]
                         [init-len (length init-pats)])
-            #'(? sequence?
-                 (and (app (λ (seq) (sequence->list (take init-len seq))) (list init-pat ...))
-                      (and c (app (λ (seq) (drop init-len seq)) last-pat)))))]
+            #'(and (? sequence?) (? (length-at-least init-len))
+                   (app (λ (seq) (sequence->list (take init-len seq))) (list init-pat ...))
+                   (and c (app (λ (seq) (drop init-len seq)) last-pat))))]
          ; otherwise just match the first elements as pats
          [else
           (define pats (syntax->list #'(svp.pat ...)))

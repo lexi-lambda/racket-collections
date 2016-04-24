@@ -20,7 +20,8 @@
 (test-case
  "Lazy tail matches"
  (check-equal? (match #(1 2 3 4) [(sequence a b ...) a]) 1)
- (check-equal? (match #(1 2 3 4) [(sequence a b ...) (last b)]) 4))
+ (check-equal? (match #(1 2 3 4) [(sequence a b ...) (last b)]) 4)
+ (check-equal? (match #() [(sequence a b ...) a] [_ #f]) #f))
 
 (test-case
  "Strict internal matches"
