@@ -1,12 +1,13 @@
 #lang racket/base
 
 (require
-  data/collection/collection
+  (except-in data/collection/collection map)
   data/collection/sequence
   data/collection/indexable
   data/collection/countable
   data/collection/contract
-  data/collection/match)
+  data/collection/match
+  (only-in data/functor map))
 
 (provide
  (all-from-out
@@ -15,4 +16,5 @@
   data/collection/indexable
   data/collection/countable
   data/collection/contract
-  data/collection/match))
+  data/collection/match
+  data/functor))
