@@ -20,12 +20,16 @@ before_install:
   - export PATH="${RACKET_DIR}/bin:${PATH}"
 
 install:
-  - raco pkg install --auto --name collections --link $TRAVIS_BUILD_DIR
+  - raco pkg install --auto --link
+      $TRAVIS_BUILD_DIR/collections
+      $TRAVIS_BUILD_DIR/collections-lib
+      $TRAVIS_BUILD_DIR/collections-doc
+      $TRAVIS_BUILD_DIR/collections-test
   - raco pkg install --auto cover cover-coveralls
 
 script:
-  - raco test -ep collections
-  - raco cover -bf coveralls -d $TRAVIS_BUILD_DIR/coverage -p collections
+  - raco test -ep collections-lib collections-test
+  - raco cover -bf coveralls -d $TRAVIS_BUILD_DIR/coverage -p collections-lib collections-test
 
 after_success:
   - bash deploy-docs.sh

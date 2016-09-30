@@ -9,7 +9,7 @@ fi
 rm -rf docs || exit 0;
 
 # build the documentation files
-scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./data/scribblings/collections.scrbl
+scribble +m --redirect-main http://pkg-build.racket-lang.org/doc/ --htmls --dest ./docs ./collections-doc/scribblings/data/collection/collections.scrbl
 
 # go to the documentation directory and create a *new* Git repo
 cd docs/collections
