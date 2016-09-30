@@ -6,8 +6,7 @@
 
 (define deps
   '("collections-lib"
-    "collections-doc"
-    "collections-test"))
+    "collections-doc"))
 (define build-deps
   '())
 
