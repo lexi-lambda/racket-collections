@@ -7,7 +7,7 @@
 
 (define deps
   '(["base" #:version "6.2"]
-    "curly-fn"
+    "curly-fn-lib"
     ["functional-lib" #:version "0.3.1"]
     "match-plus"
     "rackunit-lib"
