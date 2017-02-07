@@ -19,7 +19,6 @@
               racket/string
               racket/match
               racket/generator)
-   scribble/eval
    "../private/utils.rkt")
 
 @title[#:tag "collections-api"]{API Documentation}

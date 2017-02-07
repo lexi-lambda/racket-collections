@@ -1,7 +1,6 @@
 #lang scribble/manual
 
-@(require
-   "private/utils.rkt")
+@(require "private/utils.rkt")
 
 @title{Generic Collections}
 
@@ -21,3 +20,4 @@ this reason, this @emph{may} not be a drop-in replacement for existing code.
 @include-section["collection/introduction.scrbl"]
 @include-section["collection/examples.scrbl"]
 @include-section["collection/reference.scrbl"]
+@include-section["collection/experimental.scrbl"]

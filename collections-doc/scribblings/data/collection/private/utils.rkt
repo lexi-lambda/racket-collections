@@ -18,6 +18,7 @@
    #:lang 'racket
    '(racket/generic
      data/collection
+     data/collection/experimental/quasi
      racket/generator)))
 
 (define-syntax-rule (coll-interaction . body)
