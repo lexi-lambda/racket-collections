@@ -22,11 +22,10 @@
           (define update-ref dict-update)]
    [sequence? (define ref nth)
               (define set-ref set-nth)
-              (define update-ref update-nth)]
-   )
+              (define update-ref update-nth)])
   #:fallbacks
-  [(define/generic ref* ref)
-   (define/generic set-ref* set-ref)
+  [(define/generic -ref ref)
+   (define/generic -set-ref set-ref)
    (define (update-ref indexable index proc)
-     (let ([old (ref* indexable index)])
-       (set-ref* indexable index (proc old))))])
+     (let ([old (-ref indexable index)])
+       (-set-ref indexable index (proc old))))])
