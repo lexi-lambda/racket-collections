@@ -2,7 +2,6 @@
 
 (require rackunit
          data/collection
-         racket/set
          racket/stream
          racket/generic
          racket/function) 
@@ -29,8 +28,6 @@
   (check-equal? (ref #(a b c) 1) 'b)
   "hash"
   (check-equal? (ref (hash 'a 'b) 'a) 'b)
-  "set"
-  (check-equal? (ref (set 'a 'b) 1) 'b)
   "alist"
   (check-equal? (ref '((a . b)) 'a) 'b)
   "custom data type my-list"
@@ -43,9 +40,6 @@
   "hash"
   (check-equal? (set-ref (hash 'a 'b) 'a 'c)
                 (hash 'a 'c))
-  "set"
-  (check-equal? (stream->list (set-ref (set 0 1) 0 3))
-                (stream->list (stream 3 0)))
   "alist"
   (check-equal? (set-ref '((a . b)) 'a 'c)
                 '((a . c)))
@@ -60,9 +54,6 @@
   "hash"
   (check-equal? (update-ref (hash 'a 'b) 'a identity)
                 (hash 'a (identity 'b)))
-  "set"
-  (check-equal? (stream->list (update-ref (set 'a 'b) 0 identity))
-                (stream->list (stream 'a 'b)))
   "alist"
   (check-equal? (update-ref '((a . b)) 'a identity)
                 `((a . ,(identity 'b))))
