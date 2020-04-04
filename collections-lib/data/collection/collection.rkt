@@ -122,7 +122,7 @@
 (define (-reverse seq)
   (if (and (random-access? seq) (sequence-implements? seq 'nth))
       (reverse (wrap-random-access-sequence seq))
-      (raise-support-error 'rest seq)))
+      (raise-support-error 'reverse seq)))
 
 (define (-nth seq index)
   (if (zero? index)
