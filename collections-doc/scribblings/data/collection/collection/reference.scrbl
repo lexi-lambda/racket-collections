@@ -209,6 +209,9 @@ arguments (including the @racket[seq] argument) or a contract error will be rais
 Returns a new sequence with all the elements of @racket[seq], but in reverse order. If @racket[seq] is
 infinite, this may not terminate.
 
+A default implementation is provided for this method for many built-in sequences, as well as for any
+custom sequence that is @racket[random-access?].
+
 @(coll-examples
   (reverse '(1 2 3))
   (reverse #(1 2 3))
