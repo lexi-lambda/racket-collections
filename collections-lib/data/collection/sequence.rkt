@@ -242,7 +242,7 @@
   #:reflection-name 'lazy-sequence
   #:methods gen:countable
   [(define/match* (length (bounded-seq _ left)) left)
-   (define (known-finite seq) #t)]
+   (define (known-finite? seq) #t)]
   #:methods gen:sequence
   [(define/generic -first first)
    (define/generic -rest rest)
