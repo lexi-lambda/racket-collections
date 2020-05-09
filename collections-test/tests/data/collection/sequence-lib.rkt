@@ -90,6 +90,14 @@
  (check-equal? (sequence->list (build-sequence 5 (λ _ 'a))) '(a a a a a)))
 
 (test-case
+  "Bounded sequences"
+  (check-equal? (length (take 3 (in-naturals))) 3)
+  (check-equal? (nth (take 3 (in-naturals)) 2) 2)
+  (check-exn exn:fail:contract? (thunk (take 5 (take 3 (in-naturals)))))
+  (check-exn exn:fail:contract? (thunk (fifth (take 3 (in-naturals)))))
+  (check-exn exn:fail:contract? (thunk (nth (take 3 (in-naturals)) 23))))
+
+(test-case
  "Infinite sequence constructors"
  (check-equal? (first (repeat 'foo)) 'foo)
  (check-equal? (nth (repeat 'foo) 10000) 'foo)
