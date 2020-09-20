@@ -40,8 +40,8 @@
   [sequence->collection (sequence?* . -> . collection?*)]
   [random-access? (sequence?* . -> . boolean?)]
   ; derived functions
-  [extend* ([collection?*] #:rest (listof sequence?*) . ->* . sequence?*)]
-  [conj* ([collection?*] #:rest any/c . ->* . sequence?*)]
+  [extend* ([collection?*] #:rest (listof sequence?*) . ->* . collection?*)]
+  [conj* ([collection?*] #:rest any/c . ->* . collection?*)]
   [rename set-nth** set-nth* ([sequence?*]
                               #:rest (tuple-listof exact-nonnegative-integer? any/c)
                               . ->* . sequence?*)]

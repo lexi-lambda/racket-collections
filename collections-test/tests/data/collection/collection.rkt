@@ -32,7 +32,14 @@
 (test-case
  "Collection abbreviations"
  (check-equal? (conj* '() 'a 'b 'c) '(c b a))
- (check-equal? (extend* '() '(a b c) #(1 2 3) (hash 'foo 'bar)) '((foo . bar) 3 2 1 c b a)))
+ (check-equal? (extend* '() '(a b c) #(1 2 3) (hash 'foo 'bar)) '((foo . bar) 3 2 1 c b a))
+ (struct bag (contents)
+   #:transparent
+   #:methods gen:collection
+   [(define (conj col elem)
+      (bag (cons elem (bag-contents col))))])
+ (check-equal? (conj* (bag (list 1 2 3)) 4) (bag (list 4 1 2 3)) "collection that isn't a sequence")
+ (check-equal? (extend* (bag (list 1 2 3)) (list 4) (list 5)) (bag (list 5 4 1 2 3)) "collection that isn't a sequence"))
 
 (test-case
  "Special contract errors on mutable builtins"
