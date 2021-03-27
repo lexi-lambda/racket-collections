@@ -9,7 +9,7 @@
     "curly-fn-lib"
     ["functional-lib" #:version "0.3.1"]
     "match-plus"
-    "static-rename"
+    "static-rename-lib"
     "unstable-list-lib"))
 (define build-deps
   '())
