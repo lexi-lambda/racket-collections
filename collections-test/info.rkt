@@ -9,5 +9,5 @@
 (define build-deps
   '("base"
     "collections-lib"
-    "match-plus"
+    "match-plus-lib"
     "rackunit-lib"))

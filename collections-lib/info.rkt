@@ -8,8 +8,8 @@
   '(["base" #:version "6.3"]
     "curly-fn-lib"
     ["functional-lib" #:version "0.3.1"]
-    "match-plus"
-    "static-rename"
+    "match-plus-lib"
+    "static-rename-lib"
     "unstable-list-lib"))
 (define build-deps
   '())
