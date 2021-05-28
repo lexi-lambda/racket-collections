@@ -10,8 +10,8 @@
          match-plus)
 
 (provide
- (rename-out [in-naturals naturals]
-             [in-range range])
+ range
+ (rename-out [in-naturals naturals])
  (contract-out
   [for-each (->i ([proc (seqs) (and/c (procedure-arity-includes/c (length seqs))
                                       (unconstrained-domain-> any/c))])
@@ -236,6 +236,36 @@
 ; infinite, multi-valued sequence constructor
 (define (cycle s)
   (cycled-seq s s))
+
+(struct finite-sequence (seq)
+  #:transparent
+  #:methods gen:countable
+  [(define/generic -length length)
+   (define (length this)
+     (-length (finite-sequence-seq this)))
+   (define (known-finite? this) #t)]
+  #:methods gen:sequence
+  [(define/generic -empty? empty?)
+   (define/generic -first first)
+   (define/generic -rest rest)
+   (define/generic -nth nth)
+   (define/generic -reverse reverse)
+   (define/generic -random-access? random-access?)
+   (define (empty? this)
+     (-empty? (finite-sequence-seq this)))
+   (define (first this)
+     (-first (finite-sequence-seq this)))
+   (define (rest this)
+     (-rest (finite-sequence-seq this)))
+   (define (nth this index)
+     (-nth (finite-sequence-seq this)))
+   (define (reverse this)
+     (-reverse (finite-sequence-seq this)))
+   (define (random-access? this)
+     (-random-access? (finite-sequence-seq this)))])
+
+(define (range . args)
+  (finite-sequence (apply in-range args)))
 
 ; wrapper for lazy sections of a sequence
 (struct bounded-seq (source left)
