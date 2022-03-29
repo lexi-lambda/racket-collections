@@ -237,13 +237,14 @@
 (define (cycle s)
   (cycled-seq s s))
 
-(struct finite-sequence (seq)
+(struct annotated-sequence (seq known-finite?)
   #:transparent
   #:methods gen:countable
   [(define/generic -length length)
    (define (length this)
-     (-length (finite-sequence-seq this)))
-   (define (known-finite? this) #t)]
+     (-length (annotated-sequence-seq this)))
+   (define (known-finite? this)
+     (annotated-sequence-known-finite? this))]
   #:methods gen:sequence
   [(define/generic -empty? empty?)
    (define/generic -first first)
@@ -252,20 +253,41 @@
    (define/generic -reverse reverse)
    (define/generic -random-access? random-access?)
    (define (empty? this)
-     (-empty? (finite-sequence-seq this)))
+     (-empty? (annotated-sequence-seq this)))
    (define (first this)
-     (-first (finite-sequence-seq this)))
+     (-first (annotated-sequence-seq this)))
    (define (rest this)
-     (-rest (finite-sequence-seq this)))
+     (-rest (annotated-sequence-seq this)))
    (define (nth this index)
-     (-nth (finite-sequence-seq this)))
+     (-nth (annotated-sequence-seq this)))
    (define (reverse this)
-     (-reverse (finite-sequence-seq this)))
+     (-reverse (annotated-sequence-seq this)))
    (define (random-access? this)
-     (-random-access? (finite-sequence-seq this)))])
+     (-random-access? (annotated-sequence-seq this)))]
+  #:methods gen:custom-write
+  [(define (write-proc this port mode)
+     (if (annotated-sequence-known-finite? this)
+         (fprintf port ; if it's known finite, print the entire sequence as a list
+                  "~a"
+                  (reverse
+                   (extend '() (annotated-sequence-seq this))))
+         (let loop ([s (annotated-sequence-seq this)]
+                    [forced null]
+                    [i 0])
+           (cond [(empty? s) ; turned out to be finite
+                  (fprintf port
+                           "~a"
+                           (extend '() forced))]
+                 [(> i 2) ; force up to N=3 elements
+                  (fprintf port
+                           "~a"
+                           (extend '(...) forced))]
+                 [else (loop (rest s) ; force more elements
+                             (cons (first s) forced)
+                             (add1 i))]))))])
 
 (define (range . args)
-  (finite-sequence (apply in-range args)))
+  (annotated-sequence (apply in-range args) #t))
 
 ; wrapper for lazy sections of a sequence
 (struct bounded-seq (source left)
